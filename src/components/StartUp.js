@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { addBook } from "../services/dataService";
+import React, { useState, useEffect } from "react";
+import { addBook, getBooks } from "../services/dataService";
 
 const StartUp = () => {
   const [bookDetails, setBookDetails] = useState({
@@ -7,12 +7,25 @@ const StartUp = () => {
     title: "",
   });
 
+  const [books, setBooks] = useState();
+  const [updateState, setUpdateState] = useState(false);
+
+  useEffect(() => {
+    load();
+  }, [updateState]);
+
+  const load = async () => {
+    let books = await getBooks();
+    setBooks(books.data);
+  };
+
   const setLocalState = (fieldName, fieldvalue) => {
     setBookDetails({ ...bookDetails, [fieldName]: fieldvalue });
   };
 
   const adaugaCarte = async () => {
     await addBook(bookDetails);
+    setUpdateState(!updateState);
   };
   return (
     <>
@@ -40,6 +53,13 @@ const StartUp = () => {
       <br />
 
       <button onClick={adaugaCarte}>Insert</button>
+      <div>
+        <h1>Books from api</h1>
+        {books &&
+          books.map((x, i) => {
+            return <p>{`ISBN: ${x.code}, Name: ${x.title}`}</p>;
+          })}
+      </div>
     </>
   );
 };

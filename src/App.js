@@ -1,26 +1,52 @@
-import logo from "./logo.svg";
+import React, { useState } from "react";
+import { HashRouter as Router, Route, Switch } from "react-router-dom";
+import history from "./lib/history";
 import "./App.css";
-import StartUp from "./components/StartUp.js";
+import { AppContext } from "./AppContext";
+import AdminOrders from "./components/pages/AdminOrders";
+import AdminProducts from "./components/pages/AdminProducts";
+import AdminLogin from "./components/admin-app/AdminLogin";
+
+import "primeicons/primeicons.css";
+import "primereact/resources/themes/saga-blue/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeflex/primeflex.css";
+
+import "./styles/theme.css";
+const routes = [
+  {
+    path: "/admin/orders",
+    component: AdminOrders,
+  },
+  {
+    path: "/admin/products",
+    component: AdminProducts,
+  },
+  {
+    path: "/admin/login",
+    component: AdminLogin,
+  },
+];
 
 const App = () => {
+  const [appState, setAppState] = useState({});
   return (
-    <div className="App">
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
-      <StartUp />
-    </div>
+    <AppContext.Provider value={{ appState, setAppState }}>
+      <Router history={history}>
+        <Switch>
+          {routes.map((route, key) => {
+            return (
+              <Route
+                key={key}
+                path={route.path}
+                component={route.component}
+                exact
+              ></Route>
+            );
+          })}
+        </Switch>
+      </Router>
+    </AppContext.Provider>
   );
 };
 
