@@ -4,3 +4,6 @@
 body {
   background-color: beige;
 }
+label {
+  font-weight: 500;
+}
