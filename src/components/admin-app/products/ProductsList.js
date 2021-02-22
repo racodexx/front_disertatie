@@ -20,7 +20,13 @@ import { InputNumber } from "primereact/inputnumber";
 import { Dropdown } from "primereact/dropdown";
 import { Checkbox } from "primereact/checkbox";
 
-import { getProducts, addProduct } from "../../../services/productService";
+import {
+  getProducts,
+  addProduct,
+  editProduct,
+  uploadPicture,
+  deleteProducts,
+} from "../../../services/productService";
 import {
   ProductAvailabilityStatusSelection,
   ProductCategorySelection,
@@ -28,6 +34,13 @@ import {
   DrinkCategorySelection,
 } from "../../../utils/dataSelections";
 import ProductCategory from "../../../utils/enums/ProductCategory";
+import { image, handleApiActionResult } from "../../../utils/util";
+
+const ProductDialogType = {
+  None: 0,
+  Add: 1,
+  Edit: 2,
+};
 
 const ProductsList = () => {
   let emptyProduct = {
@@ -39,21 +52,21 @@ const ProductsList = () => {
     price: 0,
     availabilityStatusId: null,
     featured: false,
-    imgSrc: null,
+    image: null,
   };
 
   const CONTENT_HEIGHT = window.innerHeight;
 
+  const [selectedProduct, setSelectedProduct] = useState(emptyProduct);
   const [products, setProducts] = useState(null);
-  const [productDialog, setProductDialog] = useState(false);
-  const [deleteOrderDialog, setDeleteProductDialog] = useState(false);
-  const [deleteOrdersDialog, setDeleteProductsDialog] = useState(false);
-  const [order, setProduct] = useState(emptyProduct);
   const [selectedProducts, setSelectedProducts] = useState(null);
+  const [productDialog, setProductDialog] = useState(ProductDialogType.None);
+  const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+  const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
-  const toast = useRef(null);
-  const dt = useRef(null);
+  const toastRef = useRef(null);
+  const dataTableRef = useRef(null);
 
   useEffect(() => {
     loadProducts();
@@ -61,8 +74,8 @@ const ProductsList = () => {
 
   const loadProducts = async () => {
     let result = await getProducts();
-    if (result && result.data && result.data.data && result.data.data.length) {
-      setProducts(result.data.data);
+    if (result && result.data.length) {
+      setProducts(result.data);
     }
   };
 
@@ -74,14 +87,14 @@ const ProductsList = () => {
   };
 
   const openNew = () => {
-    setProduct(emptyProduct);
+    setSelectedProduct(emptyProduct);
     setSubmitted(false);
-    setProductDialog(true);
+    setProductDialog(ProductDialogType.Add);
   };
 
   const hideDialog = () => {
     setSubmitted(false);
-    setProductDialog(false);
+    setProductDialog(ProductDialogType.None);
   };
 
   const hideDeleteProductDialog = () => {
@@ -93,145 +106,142 @@ const ProductsList = () => {
   };
 
   const onCategoryChange = (e) => {
-    let _product = { ...order };
+    let _product = { ...selectedProduct };
     _product["categoryId"] = e.value;
     _product["subcategoryId"] = null;
-    setProduct(_product);
+    setSelectedProduct(_product);
   };
 
   const onSubategoryChange = (e) => {
-    let _product = { ...order };
+    let _product = { ...selectedProduct };
     _product["subcategoryId"] = e.value;
-    setProduct(_product);
+    setSelectedProduct(_product);
   };
 
   const onAvailabilityChange = (e) => {
-    let _product = { ...order };
+    let _product = { ...selectedProduct };
     _product["availabilityStatusId"] = e.value;
-    setProduct(_product);
+    setSelectedProduct(_product);
   };
 
   const onFeaturedChange = (e) => {
-    let _product = { ...order };
+    let _product = { ...selectedProduct };
     _product["featured"] = e.checked;
-    setProduct(_product);
+    setSelectedProduct(_product);
+  };
+
+  const onPictureChange = (event) => {
+    let _product = { ...selectedProduct };
+    _product["image"] = event.target.files[0];
+    setSelectedProduct(_product);
   };
 
   const onInputChange = (e, name) => {
     const val = (e.target && e.target.value) || "";
-    let _product = { ...order };
+    let _product = { ...selectedProduct };
     _product[`${name}`] = val;
 
-    setProduct(_product);
+    setSelectedProduct(_product);
   };
 
   const onInputNumberChange = (e, name) => {
     const val = e.value || 0;
-    let _product = { ...order };
+    let _product = { ...selectedProduct };
     _product[`${name}`] = val;
 
-    setProduct(_product);
-  };
-
-  const onUpload = () => {
-    alert("upload");
+    setSelectedProduct(_product);
   };
 
   const saveProduct = async () => {
     setSubmitted(true);
-    const newProduct = {
-      name: order.name,
-      description: order.description,
-      categoryId: order.categoryId,
-      subCategoryId: order.subcategoryId,
-      price: order.price,
-      availabilityStatusId: order.availabilityStatusId,
-      imgSrc: "",
-      featured: order.featured,
-    };
-    const result = await addProduct(newProduct);
-    console.log(result);
-    if (result.errors) {
+    let result;
+    if (productDialog === ProductDialogType.Add) {
+      const newProduct = {
+        name: selectedProduct.name,
+        description: selectedProduct.description,
+        categoryId: selectedProduct.categoryId,
+        subcategoryId: selectedProduct.subcategoryId,
+        price: selectedProduct.price,
+        availabilityStatusId: selectedProduct.availabilityStatusId,
+        featured: selectedProduct.featured,
+      };
+      result = await addProduct(newProduct);
+    } else {
+      result = await editProduct(selectedProduct);
+    }
+
+    let resultData = handleApiActionResult(result, toastRef);
+    console.log(resultData);
+    if (!resultData) {
       return;
     }
-    let _products = [...products];
-    if (order.name.trim()) {
-      let _product = { ...order };
-      if (order.id) {
-        const index = findIndexById(order.id);
-
-        _products[index] = _product;
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Product Updated",
-          life: 3000,
-        });
-      } else {
-        console.log(result.data.data._id);
-        _product.id = result.data.data._id;
-        _products.push(_product);
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Product Created",
-          life: 3000,
-        });
-      }
-
-      setProducts(_products);
-      setProductDialog(false);
-      setProduct(emptyProduct);
+    if (selectedProduct.image) {
+      let formData = new FormData();
+      formData.append("picture", selectedProduct.image, resultData._id + "");
+      await uploadPicture(formData);
     }
+    let _products = [...products];
+
+    if (productDialog === ProductDialogType.Add) {
+      _products.push(resultData);
+    } else {
+      const index = products.indexOf(
+        products.find((x) => x._id === resultData._id)
+      );
+      _products[index] = resultData;
+    }
+
+    setProducts(_products);
+    setProductDialog(ProductDialogType.None);
+    setSelectedProduct(emptyProduct);
   };
 
-  const editProduct = (product) => {
-    setProduct({ ...product });
-    setProductDialog(true);
+  const edit = (product) => {
+    setSelectedProduct({ ...product });
+    setProductDialog(ProductDialogType.Edit);
   };
 
   const confirmDeleteProduct = (product) => {
-    setProduct(product);
+    setSelectedProduct(product);
     setDeleteProductDialog(true);
   };
 
-  const deleteProduct = () => {
-    let _products = products.filter((val) => val.id !== order.id);
-    setProduct(_products);
+  const deleteProd = async () => {
+    let result = await deleteProducts([selectedProduct._id]);
+    if (!result) {
+      toastRef.current.show({
+        severity: "error",
+        summary: "Fail",
+        detail: "Operation failed",
+        life: 3000,
+      });
+      return;
+    }
+    if (result.status === "fail") {
+      toastRef.current.show({
+        severity: "error",
+        summary: "Fail",
+        detail: result.message,
+        life: 3000,
+      });
+      return;
+    } else {
+      toastRef.current.show({
+        severity: "success",
+        summary: "Successful",
+        detail: result.message,
+        life: 3000,
+      });
+    }
+
+    let _products = products.filter((val) => val._id !== selectedProduct._id);
+    setProducts(_products);
     setDeleteProductDialog(false);
-    setProduct(emptyProduct);
-    toast.current.show({
-      severity: "success",
-      summary: "Successful",
-      detail: "Product Deleted",
-      life: 3000,
-    });
-  };
-
-  const findIndexById = (id) => {
-    let index = -1;
-    for (let i = 0; i < products.length; i++) {
-      if (products[i].id === id) {
-        index = i;
-        break;
-      }
-    }
-
-    return index;
-  };
-
-  const createId = () => {
-    let id = "";
-    let chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 5; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
+    setSelectedProduct(emptyProduct);
   };
 
   const exportCSV = () => {
-    dt.current.exportCSV();
+    dataTableRef.current.exportCSV();
   };
 
   const confirmDeleteSelected = () => {
@@ -243,7 +253,7 @@ const ProductsList = () => {
     setProducts(_products);
     setDeleteProductsDialog(false);
     setSelectedProducts(null);
-    toast.current.show({
+    toastRef.current.show({
       severity: "success",
       summary: "Successful",
       detail: "Products Deleted",
@@ -296,22 +306,14 @@ const ProductsList = () => {
     return formatCurrency(rowData.price);
   };
 
-  const summaryBodyTemplate = (rowData) => {
-    let summary = "";
-    if (rowData.products) {
-      for (let item of rowData.products) {
-        let product = JSON.parse(item);
-        summary += product.quantity + "x" + product.name + " ";
-      }
-    }
-    return summary;
+  const pictureBodyTemplate = (rowData) => {
+    return <img src={image(rowData._id)} alt="product" width="200px" />;
   };
 
   const availabilityBodyTemplate = (rowData) => {
     let item = ProductAvailabilityStatusSelection.find(
       (x) => x.id === rowData.availabilityStatusId
     );
-    console.log(item);
     return <strong style={{ color: item.color }}>{item.name}</strong>;
   };
 
@@ -325,7 +327,7 @@ const ProductsList = () => {
         <Button
           icon="pi pi-pencil"
           className="p-button-rounded p-button-success p-mr-2"
-          onClick={() => editProduct(rowData)}
+          onClick={() => edit(rowData)}
         />
         <Button
           icon="pi pi-trash"
@@ -377,7 +379,7 @@ const ProductsList = () => {
         label="Yes"
         icon="pi pi-check"
         className="p-button-text"
-        onClick={deleteProduct}
+        onClick={deleteProd}
       />
     </React.Fragment>
   );
@@ -405,13 +407,14 @@ const ProductsList = () => {
         name="category"
         value={x.id}
         onChange={onCategoryChange}
-        checked={order.categoryId === x.id}
+        checked={selectedProduct.categoryId === x.id}
       />
       <label htmlFor={`category${index}`}>{x.name}</label>
     </div>
   ));
 
-  const newProductSubcategories = (order.categoryId === ProductCategory.Drink
+  const newProductSubcategories = (selectedProduct.categoryId ===
+  ProductCategory.Drink
     ? DrinkCategorySelection
     : FoodCategorySelection
   ).map((x, index) => (
@@ -421,7 +424,7 @@ const ProductsList = () => {
         name="subcategory"
         value={x.id}
         onChange={onSubategoryChange}
-        checked={order.subcategoryId === x.id}
+        checked={selectedProduct.subcategoryId === x.id}
       />
       <label htmlFor={`subcategory${index}`}>{x.name}</label>
     </div>
@@ -429,7 +432,7 @@ const ProductsList = () => {
 
   return (
     <div className="datatable-crud-demo">
-      <Toast ref={toast} />
+      <Toast ref={toastRef} />
 
       <div className="card">
         <Toolbar
@@ -439,7 +442,7 @@ const ProductsList = () => {
         ></Toolbar>
 
         <DataTable
-          ref={dt}
+          ref={dataTableRef}
           value={products}
           selection={selectedProducts}
           onSelectionChange={(e) => setSelectedProducts(e.value)}
@@ -463,7 +466,7 @@ const ProductsList = () => {
           <Column
             field="picture"
             header="Picture"
-            body={summaryBodyTemplate}
+            body={pictureBodyTemplate}
             sortable
           ></Column>
           <Column
@@ -491,7 +494,11 @@ const ProductsList = () => {
       <Dialog
         visible={productDialog}
         style={{ width: "500px" }}
-        header="New Product Details"
+        header={
+          productDialog === ProductDialogType.Add
+            ? "New product details"
+            : "Edit product details"
+        }
         modal
         className="p-fluid"
         footer={productDialogFooter}
@@ -511,12 +518,12 @@ const ProductsList = () => {
           <label htmlFor="name">Name</label>
           <InputText
             id="name"
-            value={order.name}
+            value={selectedProduct.name}
             onChange={(e) => onInputChange(e, "name")}
             required
             autoFocus
           />
-          {submitted && !order.name && (
+          {submitted && !selectedProduct.name && (
             <small className="p-invalid">Name is required.</small>
           )}
         </div>
@@ -524,7 +531,7 @@ const ProductsList = () => {
           <label htmlFor="description">Description</label>
           <InputTextarea
             id="description"
-            value={order.description}
+            value={selectedProduct.description}
             onChange={(e) => onInputChange(e, "description")}
             required
             rows={3}
@@ -536,7 +543,7 @@ const ProductsList = () => {
           <label htmlFor="price">Price</label>
           <InputNumber
             id="price"
-            value={order.price}
+            value={selectedProduct.price}
             onValueChange={(e) => onInputNumberChange(e, "price")}
             mode="currency"
             currency="USD"
@@ -548,7 +555,7 @@ const ProductsList = () => {
           <label htmlFor="availability">Product availability</label>
           <Dropdown
             id="availability"
-            value={order.availabilityStatusId}
+            value={selectedProduct.availabilityStatusId}
             options={ProductAvailabilityStatusSelection}
             onChange={onAvailabilityChange}
             optionLabel="name"
@@ -560,7 +567,7 @@ const ProductsList = () => {
         <div className="p-field-checkbox">
           <Checkbox
             inputId="featured"
-            checked={order.featured}
+            checked={selectedProduct.featured}
             onChange={onFeaturedChange}
           />
           <label htmlFor="featured">Featured</label>
@@ -568,22 +575,17 @@ const ProductsList = () => {
 
         <div className="card">
           <h5>Pictures</h5>
-          <FileUpload
-            name="demo[]"
-            url="./upload.php"
-            onUpload={onUpload}
-            multiple
-            accept="image/*"
-            maxFileSize={1000000}
-            emptyTemplate={
-              <p className="p-m-0">Drag and drop files to here to upload.</p>
-            }
+          <input
+            type="file"
+            multiple={false}
+            accept=".jpg,.png"
+            onChange={onPictureChange}
           />
         </div>
       </Dialog>
 
       <Dialog
-        visible={deleteOrderDialog}
+        visible={deleteProductDialog}
         style={{ width: "450px" }}
         header="Confirm"
         modal
@@ -595,16 +597,16 @@ const ProductsList = () => {
             className="pi pi-exclamation-triangle p-mr-3"
             style={{ fontSize: "2rem" }}
           />
-          {order && (
+          {selectedProduct && (
             <span>
-              Are you sure you want to delete <b>{order.name}</b>?
+              Are you sure you want to delete <b>{selectedProduct.name}</b>?
             </span>
           )}
         </div>
       </Dialog>
 
       <Dialog
-        visible={deleteOrdersDialog}
+        visible={deleteProductsDialog}
         style={{ width: "450px" }}
         header="Confirm"
         modal
@@ -616,7 +618,7 @@ const ProductsList = () => {
             className="pi pi-exclamation-triangle p-mr-3"
             style={{ fontSize: "2rem" }}
           />
-          {order && (
+          {selectedProduct && (
             <span>Are you sure you want to delete the selected products?</span>
           )}
         </div>

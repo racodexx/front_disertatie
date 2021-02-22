@@ -44,6 +44,8 @@ const DrinkCategorySelection = [
   { id: DrinkCategory.Soda, name: "Soda" },
   { id: DrinkCategory.NaturalJuice, name: "Natural Juice" },
   { id: DrinkCategory.Cocktail, name: "Coctail" },
+  { id: DrinkCategory.Beer, name: "Beer" },
+  { id: DrinkCategory.Alcohol, name: "Alcoholic drink" },
 ];
 
 export {

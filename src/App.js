@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
-import history from "./lib/history";
 import "./App.css";
 import { AppContext } from "./AppContext";
 import AdminOrders from "./components/pages/AdminOrders";
@@ -32,7 +31,7 @@ const App = () => {
   const [appState, setAppState] = useState({});
   return (
     <AppContext.Provider value={{ appState, setAppState }}>
-      <Router history={history}>
+      <Router>
         <Switch>
           {routes.map((route, key) => {
             return (
