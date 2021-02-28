@@ -20,10 +20,10 @@ import { InputNumber } from "primereact/inputnumber";
 
 import { getOrders } from "../../../services/orderService";
 import OrderStatus from "../../../utils/enums/OrderStatus";
-import OrderStatusSelection from '../../../utils/dataSelections';
+import OrderStatusSelection from "../../../utils/dataSelections";
 
 const OrdersList = () => {
-  let emptyProduct = {
+  let emptyOrder = {
     id: null,
     name: "",
     image: null,
@@ -38,10 +38,10 @@ const OrdersList = () => {
   const CONTENT_HEIGHT = window.innerHeight;
 
   const [orders, setOrders] = useState(null);
-  const [orderDialog, setProductDialog] = useState(false);
-  const [deleteOrderDialog, setDeleteProductDialog] = useState(false);
-  const [deleteOrdersDialog, setDeleteProductsDialog] = useState(false);
-  const [order, setOrder] = useState(emptyProduct);
+  const [orderDialog, setOrderDialog] = useState(false);
+  const [deleteOrderDialog, setDeleteOrderDialog] = useState(false);
+  const [deleteOrdersDialog, setDeleteOrdersDialog] = useState(false);
+  const [order, setOrder] = useState(emptyOrder);
   const [selectedOrders, setSelectedOrders] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
@@ -67,98 +67,98 @@ const OrdersList = () => {
   };
 
   const openNew = () => {
-    setOrder(emptyProduct);
+    setOrder(emptyOrder);
     setSubmitted(false);
-    setProductDialog(true);
+    setOrderDialog(true);
   };
 
   const hideDialog = () => {
     setSubmitted(false);
-    setProductDialog(false);
+    setOrderDialog(false);
   };
 
-  const hideDeleteProductDialog = () => {
-    setDeleteProductDialog(false);
+  const hideDeleteOrderDialog = () => {
+    setDeleteOrderDialog(false);
   };
 
-  const hideDeleteProductsDialog = () => {
-    setDeleteProductsDialog(false);
+  const hideDeleteOrderssDialog = () => {
+    setDeleteOrdersDialog(false);
   };
 
   const onCategoryChange = (e) => {
-    let _product = { ...order };
-    _product["category"] = e.value;
-    setOrder(_product);
+    let _order = { ...order };
+    _order["category"] = e.value;
+    setOrder(_order);
   };
 
   const onInputChange = (e, name) => {
     const val = (e.target && e.target.value) || "";
-    let _product = { ...order };
-    _product[`${name}`] = val;
+    let _order = { ...order };
+    _order[`${name}`] = val;
 
-    setOrder(_product);
+    setOrder(_order);
   };
 
   const onInputNumberChange = (e, name) => {
     const val = e.value || 0;
-    let _product = { ...order };
-    _product[`${name}`] = val;
+    let _order = { ...order };
+    _order[`${name}`] = val;
 
-    setOrder(_product);
+    setOrder(_order);
   };
 
-  const saveProduct = () => {
+  const saveOrder = () => {
     setSubmitted(true);
 
     if (order.name.trim()) {
-      let _products = [...orders];
-      let _product = { ...order };
+      let _orders = [...orders];
+      let _order = { ...order };
       if (order.id) {
         const index = findIndexById(order.id);
 
-        _products[index] = _product;
+        _orders[index] = _order;
         toast.current.show({
           severity: "success",
           summary: "Successful",
-          detail: "Product Updated",
+          detail: "Order Updated",
           life: 3000,
         });
       } else {
-        _product.id = createId();
-        _products.push(_product);
+        _order.id = createId();
+        _orders.push(_order);
         toast.current.show({
           severity: "success",
           summary: "Successful",
-          detail: "Product Created",
+          detail: "Order Created",
           life: 3000,
         });
       }
 
-      setOrders(_products);
-      setProductDialog(false);
-      setOrder(emptyProduct);
+      setOrders(_orders);
+      setOrderDialog(false);
+      setOrder(emptyOrder);
     }
   };
 
-  const editProduct = (product) => {
-    setOrder({ ...product });
-    setProductDialog(true);
+  const editOrder = (order) => {
+    setOrder({ ...order });
+    setOrderDialog(true);
   };
 
-  const confirmDeleteProduct = (product) => {
-    setOrder(product);
-    setDeleteProductDialog(true);
+  const confirmDeleteOrder = (order) => {
+    setOrder(order);
+    setDeleteOrderDialog(true);
   };
 
-  const deleteProduct = () => {
-    let _products = orders.filter((val) => val.id !== order.id);
-    setOrder(_products);
-    setDeleteProductDialog(false);
-    setOrder(emptyProduct);
+  const deleteOrder = () => {
+    let _orders = orders.filter((val) => val.id !== order.id);
+    setOrder(_orders);
+    setDeleteOrderDialog(false);
+    setOrder(emptyOrder);
     toast.current.show({
       severity: "success",
       summary: "Successful",
-      detail: "Product Deleted",
+      detail: "Order Deleted",
       life: 3000,
     });
   };
@@ -190,18 +190,18 @@ const OrdersList = () => {
   };
 
   const confirmDeleteSelected = () => {
-    setDeleteProductsDialog(true);
+    setDeleteOrdersDialog(true);
   };
 
-  const deleteSelectedProducts = () => {
-    let _products = orders.filter((val) => !selectedOrders.includes(val));
-    setOrders(_products);
-    setDeleteProductsDialog(false);
+  const deleteSelectedOrders = () => {
+    let _orders = orders.filter((val) => !selectedOrders.includes(val));
+    setOrders(_orders);
+    setDeleteOrdersDialog(false);
     setSelectedOrders(null);
     toast.current.show({
       severity: "success",
       summary: "Successful",
-      detail: "Products Deleted",
+      detail: "Orders Deleted",
       life: 3000,
     });
   };
@@ -291,12 +291,12 @@ const OrdersList = () => {
         <Button
           icon="pi pi-pencil"
           className="p-button-rounded p-button-success p-mr-2"
-          onClick={() => editProduct(rowData)}
+          onClick={() => editOrder(rowData)}
         />
         <Button
           icon="pi pi-trash"
           className="p-button-rounded p-button-warning"
-          onClick={() => confirmDeleteProduct(rowData)}
+          onClick={() => confirmDeleteOrder(rowData)}
         />
       </React.Fragment>
     );
@@ -315,7 +315,7 @@ const OrdersList = () => {
       </span>
     </div>
   );
-  const productDialogFooter = (
+  const orderDialogFooter = (
     <React.Fragment>
       <Button
         label="Cancel"
@@ -327,39 +327,39 @@ const OrdersList = () => {
         label="Save"
         icon="pi pi-check"
         className="p-button-text"
-        onClick={saveProduct}
+        onClick={saveOrder}
       />
     </React.Fragment>
   );
-  const deleteProductDialogFooter = (
+  const deleteOrderDialogFooter = (
     <React.Fragment>
       <Button
         label="No"
         icon="pi pi-times"
         className="p-button-text"
-        onClick={hideDeleteProductDialog}
+        onClick={hideDeleteOrderDialog}
       />
       <Button
         label="Yes"
         icon="pi pi-check"
         className="p-button-text"
-        onClick={deleteProduct}
+        onClick={deleteOrder}
       />
     </React.Fragment>
   );
-  const deleteProductsDialogFooter = (
+  const deleteOrdersDialogFooter = (
     <React.Fragment>
       <Button
         label="No"
         icon="pi pi-times"
         className="p-button-text"
-        onClick={hideDeleteProductsDialog}
+        onClick={hideDeleteOrderssDialog}
       />
       <Button
         label="Yes"
         icon="pi pi-check"
         className="p-button-text"
-        onClick={deleteSelectedProducts}
+        onClick={deleteSelectedOrders}
       />
     </React.Fragment>
   );
@@ -385,7 +385,7 @@ const OrdersList = () => {
           rows={10}
           rowsPerPageOptions={[5, 10, 25]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
           globalFilter={globalFilter}
           header={header}
           scrollable
@@ -428,10 +428,10 @@ const OrdersList = () => {
       <Dialog
         visible={orderDialog}
         style={{ width: "450px" }}
-        header="Product Details"
+        header="Order Details"
         modal
         className="p-fluid"
-        footer={productDialogFooter}
+        footer={orderDialogFooter}
         onHide={hideDialog}
       >
         <div className="p-field">
@@ -534,8 +534,8 @@ const OrdersList = () => {
         style={{ width: "450px" }}
         header="Confirm"
         modal
-        footer={deleteProductDialogFooter}
-        onHide={hideDeleteProductDialog}
+        footer={deleteOrderDialogFooter}
+        onHide={hideDeleteOrderDialog}
       >
         <div className="confirmation-content">
           <i
@@ -555,8 +555,8 @@ const OrdersList = () => {
         style={{ width: "450px" }}
         header="Confirm"
         modal
-        footer={deleteProductsDialogFooter}
-        onHide={hideDeleteProductsDialog}
+        footer={deleteOrdersDialogFooter}
+        onHide={hideDeleteOrderssDialog}
       >
         <div className="confirmation-content">
           <i

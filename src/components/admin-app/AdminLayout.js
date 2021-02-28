@@ -12,9 +12,7 @@ const TabMenuWrapper = styled.div`
 const MenuItems = {
   Orders: 1,
   Products: 2,
-  M3: 3,
-  M4: 4,
-  M5: 5,
+  Settings: 3,
 };
 
 const AdminLayout = (props) => {
@@ -33,8 +31,6 @@ const AdminLayout = (props) => {
       icon: "pi pi-fw pi-calendar",
       href: "/admin/products",
     },
-    { id: MenuItems.M3, label: "Edit", icon: "pi pi-fw pi-pencil" },
-    { id: MenuItems.M4, label: "Documentation", icon: "pi pi-fw pi-file" },
     { id: MenuItems.M5, label: "Settings", icon: "pi pi-fw pi-cog" },
   ];
 

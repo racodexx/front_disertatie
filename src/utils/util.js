@@ -12,6 +12,6 @@ const handleApiActionResult = (result, toastRef) => {
     });
   }
 
-  return result.data || null;
+  return result.status === "success" ? result.data || true : false;
 };
 export { image, handleApiActionResult };

@@ -26,6 +26,7 @@ import {
   editProduct,
   uploadPicture,
   deleteProducts,
+  deleteProduct,
 } from "../../../services/productService";
 import {
   ProductAvailabilityStatusSelection,
@@ -58,7 +59,7 @@ const ProductsList = () => {
   const CONTENT_HEIGHT = window.innerHeight;
 
   const [selectedProduct, setSelectedProduct] = useState(emptyProduct);
-  const [products, setProducts] = useState(null);
+  const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState(null);
   const [productDialog, setProductDialog] = useState(ProductDialogType.None);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
@@ -105,34 +106,12 @@ const ProductsList = () => {
     setDeleteProductsDialog(false);
   };
 
-  const onCategoryChange = (e) => {
+  const setProductState = (field, value) => {
     let _product = { ...selectedProduct };
-    _product["categoryId"] = e.value;
-    _product["subcategoryId"] = null;
-    setSelectedProduct(_product);
-  };
-
-  const onSubategoryChange = (e) => {
-    let _product = { ...selectedProduct };
-    _product["subcategoryId"] = e.value;
-    setSelectedProduct(_product);
-  };
-
-  const onAvailabilityChange = (e) => {
-    let _product = { ...selectedProduct };
-    _product["availabilityStatusId"] = e.value;
-    setSelectedProduct(_product);
-  };
-
-  const onFeaturedChange = (e) => {
-    let _product = { ...selectedProduct };
-    _product["featured"] = e.checked;
-    setSelectedProduct(_product);
-  };
-
-  const onPictureChange = (event) => {
-    let _product = { ...selectedProduct };
-    _product["image"] = event.target.files[0];
+    _product[field] = value;
+    if (field === "categoryId") {
+      _product["subcategoryId"] = null;
+    }
     setSelectedProduct(_product);
   };
 
@@ -208,30 +187,9 @@ const ProductsList = () => {
 
   const deleteProd = async () => {
     let result = await deleteProducts([selectedProduct._id]);
-    if (!result) {
-      toastRef.current.show({
-        severity: "error",
-        summary: "Fail",
-        detail: "Operation failed",
-        life: 3000,
-      });
+    let data = handleApiActionResult(result, toastRef);
+    if (!data) {
       return;
-    }
-    if (result.status === "fail") {
-      toastRef.current.show({
-        severity: "error",
-        summary: "Fail",
-        detail: result.message,
-        life: 3000,
-      });
-      return;
-    } else {
-      toastRef.current.show({
-        severity: "success",
-        summary: "Successful",
-        detail: result.message,
-        life: 3000,
-      });
     }
 
     let _products = products.filter((val) => val._id !== selectedProduct._id);
@@ -248,17 +206,16 @@ const ProductsList = () => {
     setDeleteProductsDialog(true);
   };
 
-  const deleteSelectedProducts = () => {
+  const deleteSelectedProducts = async () => {
+    let result = await deleteProducts(selectedProducts.map((x) => x._id));
+    let data = handleApiActionResult(result, toastRef);
+    if (!data) {
+      return;
+    }
     let _products = products.filter((val) => !selectedProducts.includes(val));
     setProducts(_products);
     setDeleteProductsDialog(false);
     setSelectedProducts(null);
-    toastRef.current.show({
-      severity: "success",
-      summary: "Successful",
-      detail: "Products Deleted",
-      life: 3000,
-    });
   };
 
   const leftToolbarTemplate = () => {
@@ -406,7 +363,9 @@ const ProductsList = () => {
         inputId={`category${index}`}
         name="category"
         value={x.id}
-        onChange={onCategoryChange}
+        onChange={(e) => {
+          setProductState("categoryId", e.value);
+        }}
         checked={selectedProduct.categoryId === x.id}
       />
       <label htmlFor={`category${index}`}>{x.name}</label>
@@ -423,7 +382,9 @@ const ProductsList = () => {
         inputId={`subcategory${index}`}
         name="subcategory"
         value={x.id}
-        onChange={onSubategoryChange}
+        onChange={(e) => {
+          setProductState("subcategoryId", e.value);
+        }}
         checked={selectedProduct.subcategoryId === x.id}
       />
       <label htmlFor={`subcategory${index}`}>{x.name}</label>
@@ -446,7 +407,7 @@ const ProductsList = () => {
           value={products}
           selection={selectedProducts}
           onSelectionChange={(e) => setSelectedProducts(e.value)}
-          dataKey="id"
+          dataKey="_id"
           paginator
           rows={10}
           rowsPerPageOptions={[5, 10, 25]}
@@ -557,7 +518,9 @@ const ProductsList = () => {
             id="availability"
             value={selectedProduct.availabilityStatusId}
             options={ProductAvailabilityStatusSelection}
-            onChange={onAvailabilityChange}
+            onChange={(e) => {
+              setProductState("availabilityStatusId", e.value);
+            }}
             optionLabel="name"
             optionValue="id"
             placeholder="Choose availability"
@@ -568,7 +531,9 @@ const ProductsList = () => {
           <Checkbox
             inputId="featured"
             checked={selectedProduct.featured}
-            onChange={onFeaturedChange}
+            onChange={(e) => {
+              setProductState("featured", e.checked);
+            }}
           />
           <label htmlFor="featured">Featured</label>
         </div>
@@ -579,7 +544,9 @@ const ProductsList = () => {
             type="file"
             multiple={false}
             accept=".jpg,.png"
-            onChange={onPictureChange}
+            onChange={(e) => {
+              setProductState("image", e.target.files[0]);
+            }}
           />
         </div>
       </Dialog>
