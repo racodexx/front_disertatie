@@ -1,3 +1,13 @@
 .p-menuitem-link {
   box-shadow: unset !important;
 }
+.p-button {
+  background-color: #061e38;
+  border: unset;
+}
+.p-button :hover {
+  background-color: darkorange !important;
+}
+.p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
+  background-color: #061e38;
+}

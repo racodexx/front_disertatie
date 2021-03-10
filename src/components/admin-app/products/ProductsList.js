@@ -26,7 +26,6 @@ import {
   editProduct,
   uploadPicture,
   deleteProducts,
-  deleteProduct,
 } from "../../../services/productService";
 import {
   ProductAvailabilityStatusSelection,

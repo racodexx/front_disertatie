@@ -31,7 +31,7 @@ const AdminLayout = (props) => {
       icon: "pi pi-fw pi-calendar",
       href: "/admin/products",
     },
-    { id: MenuItems.M5, label: "Settings", icon: "pi pi-fw pi-cog" },
+    { id: MenuItems.Settings, label: "Settings", icon: "pi pi-fw pi-cog" },
   ];
 
   const location = document.location.href.substring(

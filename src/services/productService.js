@@ -1,8 +1,15 @@
 import axios from "axios";
 let baseURL = "http://localhost:4000/products";
 
-export const getProducts = async () => {
-  let result = await axios.get(baseURL);
+export const getProducts = async (searchParameters = null) => {
+  let params = {};
+  console.log(searchParameters);
+  if (searchParameters) {
+    params = {
+      searchParameters,
+    };
+  }
+  let result = await axios.get(baseURL + "/search", { params });
   return result.data;
 };
 
