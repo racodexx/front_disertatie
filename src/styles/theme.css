@@ -5,12 +5,21 @@
   background-color: #061e38;
   border: unset;
 }
-.p-button:hover {
-  background-color: darkorange !important;
+.p-button .p-button-label {
+  display: none;
 }
 .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
   background-color: #061e38;
 }
 label {
   font-weight: 500;
+}
+a {
+  color: #708e9f !important;
+}
+a:hover {
+  color: #0eb290 !important;
+}
+button:hover {
+  background-color: darkorange !important;
 }

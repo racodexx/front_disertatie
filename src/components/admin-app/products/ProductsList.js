@@ -149,7 +149,6 @@ const ProductsList = () => {
     }
 
     let resultData = handleApiActionResult(result, toastRef);
-    console.log(resultData);
     if (!resultData) {
       return;
     }

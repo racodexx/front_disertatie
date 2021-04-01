@@ -3,7 +3,6 @@ let baseURL = "http://localhost:4000/products";
 
 export const getProducts = async (searchParameters = null) => {
   let params = {};
-  console.log(searchParameters);
   if (searchParameters) {
     params = {
       searchParameters,

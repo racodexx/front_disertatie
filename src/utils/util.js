@@ -14,4 +14,45 @@ const handleApiActionResult = (result, toastRef) => {
 
   return result.status === "success" ? result.data || true : false;
 };
-export { image, handleApiActionResult };
+
+const getCartProducts = () => {
+  let data = localStorage.getItem("ShoppingCartProducts");
+  let parsedData = data ? JSON.parse(data) : {};
+  return parsedData;
+};
+
+const setCartProducts = (products) => {
+  localStorage.setItem("ShoppingCartProducts", JSON.stringify(products));
+};
+
+const addProductToCart = (productId) => {
+  let data = localStorage.getItem("ShoppingCartProducts");
+  let existingProducts = data ? JSON.parse(data) : {};
+  existingProducts[productId] = 1;
+  localStorage.setItem(
+    "ShoppingCartProducts",
+    JSON.stringify(existingProducts)
+  );
+};
+const removeProductFromCart = (productId) => {
+  let data = localStorage.getItem("ShoppingCartProducts");
+  let existingProducts = data && JSON.parse(data);
+  if (!existingProducts) {
+    return;
+  }
+  if (existingProducts[productId]) {
+    delete existingProducts[productId];
+  }
+  localStorage.setItem(
+    "ShoppingCartProducts",
+    JSON.stringify(existingProducts)
+  );
+};
+export {
+  image,
+  handleApiActionResult,
+  getCartProducts,
+  setCartProducts,
+  addProductToCart,
+  removeProductFromCart,
+};

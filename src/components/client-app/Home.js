@@ -7,8 +7,11 @@ import Section from "../base/Section";
 import FeaturedItem from "../base/FeaturedItem";
 import { getProducts } from "../../services/productService";
 import pizza_background from "../../assets/images/pizza_background.jpg";
+import full_logo from "../../assets/images/full_logo_transparent.png";
 import interior from "../../assets/images/interior.jpg";
 import FoodCategory from "../../utils/enums/FoodCategory";
+
+import { addProductToCart } from "../../utils/util";
 const Wrapper = styled.div`
   /* position: relative; */
 `;
@@ -17,10 +20,19 @@ const HeadImage = styled.div`
   position: relative;
   text-align: center;
 
-  img {
+  .background-img {
     width: 100%;
     opacity: 0.45;
   }
+  .logo {
+    background-color: white;
+    opacity: 0.8;
+    padding: 30px;
+    @media only screen and (max-width: 1000px) {
+      width: 100%;
+    }
+  }
+
   .centered {
     position: absolute;
     top: 40%;
@@ -29,10 +41,17 @@ const HeadImage = styled.div`
   }
 `;
 const PageContent = styled.div`
-  padding: 50px;
+  @media only screen and (min-width: 1300px) {
+    width: 80%;
+  }
+  margin: auto;
 `;
 
 const Introduction = styled.div`
+  @media only screen and (max-width: 1300px) {
+    display: inline-block;
+  }
+
   height: 450px;
   background-color: #fff;
   width: 100%;
@@ -96,13 +115,22 @@ const MenuInfoBanner = styled.div`
       color: #dfc15e;
       font-family: "Shadows Into Light", Sans-serif;
       font-size: 50px;
+      margin-bottom: 10px;
     }
     .text {
       color: #bababa;
       font-size: 17px;
       line-height: 1.6em;
     }
-    .button {
+    .check-menu-button {
+      cursor: pointer;
+      color: #dfc15e;
+      border-color: #dfc15e;
+      border-style: solid;
+      display: inline-block;
+      padding: 3px 10px 5px 10px;
+      border-radius: 19px;
+      margin: 20px;
     }
   }
 `;
@@ -120,6 +148,7 @@ const AboutRestaurantBanner = styled.div`
       font-size: 24px;
       font-weight: 400;
       letter-spacing: 2px;
+      margin-bottom: 20px;
     }
     .text {
       color: #929292;
@@ -143,15 +172,26 @@ const ContactBanner = styled.div`
     justify-content: space-between;
     .card {
       text-align: left;
+      .item {
+        margin-bottom: 5px;
+        color: #929292;
+        font-size: 15px;
+        font-weight: 500;
+      }
       .title {
         border-left: 5px solid darkorange;
-        padding-left: 5px;
-        margin-bottom: 8px;
+        padding-left: 10px;
+        margin-bottom: 10px;
+        margin-left: 5px;
       }
       .text {
+        /* color: #929292;
+        font-size: 15px;
+        font-weight: 500; */
       }
       i {
-        margin-right: 5px;
+        margin-right: 10px;
+        color: darkorange;
       }
     }
   }
@@ -200,14 +240,23 @@ const Home = () => {
   ];
 
   const productTemplate = (product) => {
-    return <FeaturedItem product={product} />;
+    return (
+      <FeaturedItem
+        product={product}
+        addToCart={() => {
+          addProductToCart(product._id);
+        }}
+      />
+    );
   };
 
   return (
     <Wrapper>
       <HeadImage>
-        <img src={pizza_background} alt="pizza" />
-        <h1 className="centered">Restaurant racodex</h1>
+        <img className="background-img" src={pizza_background} alt="pizza" />
+        <h1 className="centered">
+          <img className="logo" src={full_logo} alt="logo" />
+        </h1>
       </HeadImage>
       <Introduction>
         <div className="description">
@@ -237,7 +286,7 @@ const Home = () => {
       </AboutUsBanner>
       <PageContent>
         <SectionTitle text={"Featured products"} />
-        <Section title="Pizza" width="90%">
+        <Section title="Pizza">
           <Carousel
             value={pizzaItems}
             numVisible={4}
@@ -262,6 +311,14 @@ const Home = () => {
             humour, or randomised words which don't look even slightly
             believable.
           </div>
+          <div
+            className="check-menu-button"
+            onClick={() => {
+              window.location.href = "/#/client/menu";
+            }}
+          >
+            Check menu
+          </div>
         </div>
       </MenuInfoBanner>
       <AboutRestaurantBanner>
@@ -279,24 +336,30 @@ const Home = () => {
         <div className="content">
           <div className="card">
             <div className="title">Location</div>
-            <div>
+            <div className="item">
               <i className="pi pi-map-marker"></i>
               <span className="text">Address: Curtea de Arges</span>
             </div>
-            <div>
+            <div className="item">
               <i className="pi pi-map"></i>
               <span className="text">Street: Main Street</span>
             </div>
           </div>
           <div className="card">
             <div className="title">Contact details</div>
-            <div>
+            <div className="item">
               <i className="pi pi-inbox"></i>
-              <span className="text">racodexx@gmail.com</span>
+              <span>Email: </span>
+              <a className="text" href="mailto: racodexx@gmail.com">
+                racodexx@gmail.com
+              </a>
             </div>
-            <div>
+            <div className="item">
               <i className="pi pi-phone"></i>
-              <span className="text">0741234567</span>
+              <span>Phone: </span>
+              <a className="text" href="tel: 0741234567">
+                0741234567
+              </a>
             </div>
           </div>
         </div>

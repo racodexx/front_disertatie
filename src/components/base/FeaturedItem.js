@@ -38,7 +38,7 @@ const ItemImage = styled.div`
   height: 100%;
 `;
 
-const FeaturedItem = ({ product }) => {
+const FeaturedItem = ({ product, addToCart }) => {
   return (
     <Wrapper>
       <div className="test">
@@ -56,7 +56,7 @@ const FeaturedItem = ({ product }) => {
             availabilityStatusId={product.availabilityStatusId}
           />
           <div className="car-buttons p-mt-5">
-            <Button>Add to cart</Button>
+            <Button onClick={addToCart}>Add to cart</Button>
           </div>
         </div>
       </div>
