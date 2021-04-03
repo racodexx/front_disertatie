@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import CartItem from "../base/CartItem";
-
-import { getProducts } from "../../services/productService";
-import { getCartProducts, setCartProducts } from "../../utils/util";
 
 const Total = styled.div`
   display: flex;
@@ -25,49 +22,17 @@ const Total = styled.div`
   }
 `;
 
-const ShoppingCartStep2 = ({ includeDelivery }) => {
+const ShoppingCartStep2 = ({
+  includeDelivery,
+  cartItems,
+  quantities,
+  setQuantities,
+  removeProduct,
+  totalPrice,
+}) => {
   const FreeDeliveryLimit = 35;
   const DeliveryFee = 10;
-  const [cartItems, setCartItems] = useState([]);
-  const [quantities, setQuantities] = useState({});
 
-  useEffect(() => {
-    load();
-  }, []);
-
-  useEffect(() => {
-    setCartProducts(quantities);
-  }, [quantities]);
-
-  const load = async () => {
-    let storedProducts = getCartProducts();
-    setQuantities(storedProducts);
-    let searchParameters = { ids: Object.keys(storedProducts) };
-    let result = await getProducts(searchParameters);
-    setCartItems(result.data);
-  };
-
-  const getTotalPrice = () => {
-    let totalPrice = 0;
-    for (let product of cartItems) {
-      totalPrice += product.price * quantities[product._id];
-    }
-    return totalPrice;
-  };
-
-  const removeProduct = (productId) => {
-    let newProducts = [...cartItems];
-    let index = newProducts.indexOf(
-      newProducts.find((x) => x._id === productId)
-    );
-    newProducts.splice(index, 1);
-    setCartItems(newProducts);
-
-    let newQuantities = { ...quantities };
-    delete newQuantities[productId];
-    setQuantities(newQuantities);
-  };
-  const totalPrice = getTotalPrice();
   return (
     <>
       <div className="p-grid">
@@ -115,7 +80,7 @@ const ShoppingCartStep2 = ({ includeDelivery }) => {
               )}
             </div>
           )}
-          <h1>{"=" + (totalPrice + (includeDelivery ? DeliveryFee : 0))}</h1>
+          <h1>{"=" + totalPrice}</h1>
         </div>
       </Total>
     </>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Steps } from "primereact/steps";
 import { Button } from "primereact/button";
@@ -7,6 +7,9 @@ import ShoppingCartStep2 from "./ShoppingCartStep2";
 import ShoppingCartStep1 from "./ShoppingCartStep1";
 import ShoppingCartStep3 from "./ShoppingCartStep3";
 import PaymentType from "../../utils/enums/PaymentType";
+
+import { getProducts } from "../../services/productService";
+import { getCartProducts, setCartProducts } from "../../utils/util";
 
 const PageWrapper = styled.div`
   width: 70%;
@@ -39,6 +42,7 @@ const PaymentSteps = {
   ConfirmProducts: 1,
   Payment: 2,
 };
+const DeliveryFee = 10;
 
 const ShoppingCart = () => {
   const [step, setStep] = useState(PaymentSteps.OrderDetails);
@@ -54,6 +58,51 @@ const ShoppingCart = () => {
     paymentType: PaymentType.Card,
     stripePaymentId: "",
   });
+
+  const [cartItems, setCartItems] = useState([]);
+  const [quantities, setQuantities] = useState();
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  useEffect(() => {
+    setCartProducts(quantities);
+  }, [quantities]);
+
+  const load = async () => {
+    let storedProducts = getCartProducts();
+    setQuantities(storedProducts);
+    let searchParameters = { ids: Object.keys(storedProducts) };
+    let result = await getProducts(searchParameters);
+    setCartItems(result.data);
+  };
+
+  const getTotalPrice = () => {
+    let totalPrice = 0;
+    for (let product of cartItems) {
+      totalPrice += product.price * quantities[product._id];
+    }
+    if (orderDetails.includeDelivery) {
+      totalPrice += DeliveryFee;
+    }
+    return totalPrice;
+  };
+
+  const removeProduct = (productId) => {
+    let newProducts = [...cartItems];
+    let index = newProducts.indexOf(
+      newProducts.find((x) => x._id === productId)
+    );
+    newProducts.splice(index, 1);
+    setCartItems(newProducts);
+
+    let newQuantities = { ...quantities };
+    delete newQuantities[productId];
+    setQuantities(newQuantities);
+  };
+
+  const totalPrice = getTotalPrice();
 
   const items = [
     { id: PaymentSteps.OrderDetails, label: "Order details" },
@@ -81,6 +130,14 @@ const ShoppingCart = () => {
     setStep(newStep);
   };
 
+  const summaryItems = cartItems.map((x) => {
+    return {
+      productName: x.name,
+      quantity: quantities[x._id],
+      price: quantities[x._id] * x.price,
+    };
+  });
+
   return (
     <PageWrapper>
       <StepsWrapper>
@@ -94,13 +151,26 @@ const ShoppingCart = () => {
         />
       </StepsWrapper>
       <ContentWrapper>
-        {step === PaymentSteps.ConfirmProducts && (
-          <ShoppingCartStep2 includeDelivery={orderDetails.includeDelivery} />
-        )}
         {step === PaymentSteps.OrderDetails && (
           <ShoppingCartStep1 state={orderDetails} setState={setOrderDetails} />
         )}
-        {step === PaymentSteps.Payment && <ShoppingCartStep3 />}
+        {step === PaymentSteps.ConfirmProducts && (
+          <ShoppingCartStep2
+            includeDelivery={orderDetails.includeDelivery}
+            cartItems={cartItems}
+            quantities={quantities}
+            setQuantities={setQuantities}
+            totalPrice={totalPrice}
+            removeProduct={removeProduct}
+          />
+        )}
+        {step === PaymentSteps.Payment && (
+          <ShoppingCartStep3
+            summaryItems={summaryItems}
+            totalPrice={totalPrice}
+            deliveryFee={orderDetails.includeDelivery && DeliveryFee}
+          />
+        )}
       </ContentWrapper>
       {step !== PaymentSteps.Payment && (
         <div style={{ textAlign: "center", marginTop: "10px" }}>
