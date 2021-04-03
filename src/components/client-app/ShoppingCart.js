@@ -3,8 +3,10 @@ import styled from "styled-components";
 import { Steps } from "primereact/steps";
 import { Button } from "primereact/button";
 
-import ShoppingCartStep1 from "./ShoppingCartStep1";
 import ShoppingCartStep2 from "./ShoppingCartStep2";
+import ShoppingCartStep1 from "./ShoppingCartStep1";
+import ShoppingCartStep3 from "./ShoppingCartStep3";
+import PaymentType from "../../utils/enums/PaymentType";
 
 const PageWrapper = styled.div`
   width: 70%;
@@ -33,35 +35,40 @@ const ContentWrapper = styled.div`
 `;
 
 const PaymentSteps = {
-  ConfirmProducts: 0,
-  ContactDetails: 1,
+  OrderDetails: 0,
+  ConfirmProducts: 1,
   Payment: 2,
 };
 
 const ShoppingCart = () => {
-  const [step, setStep] = useState(PaymentSteps.ConfirmProducts);
+  const [step, setStep] = useState(PaymentSteps.OrderDetails);
 
-  const [clientDetails, setClientDetails] = useState({
+  const [orderDetails, setOrderDetails] = useState({
     name: "",
+    street: "",
+    number: "",
     phone: "",
-    address: "",
-    orderDetails: "",
+    email: "",
+    description: "",
+    includeDelivery: false,
+    paymentType: PaymentType.Card,
+    stripePaymentId: "",
   });
 
   const items = [
+    { id: PaymentSteps.OrderDetails, label: "Order details" },
     { id: PaymentSteps.ConfirmProducts, label: "Confirm products" },
-    { id: PaymentSteps.ContactDetails, label: "Contact details" },
     { id: PaymentSteps.Payment, label: "Payment" },
   ];
 
   const nextStep = () => {
     let newStep;
     switch (step) {
-      case PaymentSteps.ConfirmProducts:
-        newStep = PaymentSteps.ContactDetails;
+      case PaymentSteps.OrderDetails:
+        newStep = PaymentSteps.ConfirmProducts;
         break;
 
-      case PaymentSteps.ContactDetails:
+      case PaymentSteps.ConfirmProducts:
         newStep = PaymentSteps.Payment;
         break;
 
@@ -87,18 +94,19 @@ const ShoppingCart = () => {
         />
       </StepsWrapper>
       <ContentWrapper>
-        {step === PaymentSteps.ConfirmProducts && <ShoppingCartStep1 />}
-        {step === PaymentSteps.ContactDetails && (
-          <ShoppingCartStep2
-            state={clientDetails}
-            setState={setClientDetails}
-          />
+        {step === PaymentSteps.ConfirmProducts && (
+          <ShoppingCartStep2 includeDelivery={orderDetails.includeDelivery} />
         )}
-        {step === PaymentSteps.Payment && <>Payment</>}
+        {step === PaymentSteps.OrderDetails && (
+          <ShoppingCartStep1 state={orderDetails} setState={setOrderDetails} />
+        )}
+        {step === PaymentSteps.Payment && <ShoppingCartStep3 />}
       </ContentWrapper>
-      <div style={{ textAlign: "center", marginTop: "10px" }}>
-        <Button onClick={nextStep}>Next step</Button>
-      </div>
+      {step !== PaymentSteps.Payment && (
+        <div style={{ textAlign: "center", marginTop: "10px" }}>
+          <Button onClick={nextStep}>Next step</Button>
+        </div>
+      )}
     </PageWrapper>
   );
 };

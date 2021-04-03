@@ -1,121 +1,237 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import CartItem from "../base/CartItem";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  CircleMarker,
+  Circle,
+  Popup,
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import pointer_red from "../../assets/images/map_pointer_red.png";
+import pointer_orange from "../../assets/images/map_pointer_orange.png";
 
-import { getProducts } from "../../services/productService";
-import { getCartProducts, setCartProducts } from "../../utils/util";
+import CustomInput from "../base/CustomInput";
+import { InputTextarea } from "primereact/inputtextarea";
+import { RadioButton } from "primereact/radiobutton";
 
-const Total = styled.div`
-  display: flex;
-  border-bottom: 1px solid;
-  justify-content: space-between;
-  .right-side {
-    text-align: right;
-  }
-  .free {
-    color: green;
-  }
-  .transport {
-    h3 {
-      margin: unset;
-    }
-    h1 {
-      margin-top: 10px;
-    }
+const DeliveryOptions = styled.div`
+  margin-bottom: 20px;
+  .p-field-radiobutton {
+    margin-bottom: unset;
   }
 `;
 
-const ShoppingCartStep1 = ({}) => {
-  const FreeDeliveryLimit = 35;
-  const DeliveryFee = 10;
-  const [cartItems, setCartItems] = useState([]);
-  const [quantities, setQuantities] = useState({});
+const DeliveryInfo = styled.div`
+  font-weight: 500;
+  color: green;
+`;
+
+let DefaultIcon = L.icon({
+  iconUrl: pointer_red,
+  iconSize: [20, 35],
+  shadowSize: [3, 3],
+  iconAnchor: [10, 35],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
+const ShoppingCartStep1 = ({ state, setState }) => {
+  const [geolocationData, setGeolocatiobData] = useState(null);
 
   useEffect(() => {
-    load();
+    const handleGeolocation = (event) => {
+      setGeolocatiobData({
+        latitude: event.coords.latitude,
+        longitude: event.coords.longitude,
+      });
+    };
+    let watchId = 0;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(handleGeolocation);
+      watchId = navigator.geolocation.watchPosition(handleGeolocation);
+    } else {
+      // setAllowGeolocation(false);
+    }
   }, []);
 
-  useEffect(() => {
-    setCartProducts(quantities);
-  }, [quantities]);
+  const shopCoordonates = [45.14346740339734, 24.675206429104545];
 
-  const load = async () => {
-    let storedProducts = getCartProducts();
-    setQuantities(storedProducts);
-    let searchParameters = { ids: Object.keys(storedProducts) };
-    let result = await getProducts(searchParameters);
-    setCartItems(result.data);
+  const toRadians = (value) => {
+    return (value * Math.PI) / 180;
   };
 
-  const getTotalPrice = () => {
-    let totalPrice = 0;
-    for (let product of cartItems) {
-      totalPrice += product.price * quantities[product._id];
-    }
-    return totalPrice;
+  const distance = (lat1, lat2, lon1, lon2, el1, el2) => {
+    const R = 6371; // Radius of the earth
+    let latDistance = toRadians(lat2 - lat1);
+    let lonDistance = toRadians(lon2 - lon1);
+    let a =
+      Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
+      Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(lonDistance / 2) *
+        Math.sin(lonDistance / 2);
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    let distance = R * c * 1000; // convert to meters
+
+    let height = el1 - el2;
+
+    distance = Math.pow(distance, 2) + Math.pow(height, 2);
+    return Math.sqrt(distance);
   };
 
-  const removeProduct = (productId) => {
-    let newProducts = [...cartItems];
-    let index = newProducts.indexOf(
-      newProducts.find((x) => x._id === productId)
+  const redOptions = { color: "#ffa500ed" };
+
+  const isDeliveryAvailable =
+    geolocationData &&
+    distance(
+      shopCoordonates[0],
+      geolocationData.latitude,
+      shopCoordonates[1],
+      geolocationData.longitude,
+      2,
+      2
     );
-    newProducts.splice(index, 1);
-    setCartItems(newProducts);
-
-    let newQuantities = { ...quantities };
-    delete newQuantities[productId];
-    setQuantities(newQuantities);
-  };
-  const totalPrice = getTotalPrice();
+  console.log(isDeliveryAvailable);
   return (
     <>
       <div className="p-grid">
-        <div className="p-col-4 p-lg-8 p-md-6">
-          <h3>Products</h3>
+        <div className="p-col-12 p-md-5">
+          <DeliveryOptions className="p-grid">
+            <div className="p-field-radiobutton p-col-6">
+              <RadioButton
+                inputId="delivery1"
+                name="delivery"
+                onChange={(e) => setState({ ...state, includeDelivery: true })}
+                checked={state.includeDelivery === true}
+              />
+              <label htmlFor="delivery1">Home delivery</label>
+            </div>
+            <div className="p-field-radiobutton p-col-6">
+              <RadioButton
+                inputId="delivery2"
+                name="delivery"
+                onChange={(e) => setState({ ...state, includeDelivery: false })}
+                checked={state.includeDelivery === false}
+              />
+              <label htmlFor="delivery2">Takeaway</label>
+            </div>
+            {state.includeDelivery && (
+              <DeliveryInfo>
+                Home delivery service it's available only in Curtea de Arges
+              </DeliveryInfo>
+            )}
+          </DeliveryOptions>
+          {state.includeDelivery && (
+            <div className="p-grid">
+              <div className="p-col-12 p-md-8">
+                <CustomInput
+                  id="street"
+                  label="Street"
+                  value={state.street}
+                  onChange={(value) => {
+                    setState({ ...state, street: value });
+                  }}
+                  type="text"
+                  width="100%"
+                />
+              </div>
+              <div className="p-col-12 p-md-4">
+                <CustomInput
+                  id="number"
+                  label="Number"
+                  value={state.number}
+                  onChange={(value) => {
+                    setState({ ...state, number: value });
+                  }}
+                  type="text"
+                  width="100%"
+                />
+              </div>
+            </div>
+          )}
+          <CustomInput
+            id="name"
+            label="Name"
+            value={state.name}
+            onChange={(value) => {
+              setState({ ...state, name: value });
+            }}
+            type="text"
+            width="100%"
+          />
+          <CustomInput
+            id="phone"
+            label="Phone"
+            value={state.phone}
+            onChange={(value) => {
+              setState({ ...state, phone: value });
+            }}
+            type="tel"
+            width="100%"
+          />
+          <CustomInput
+            id="email"
+            label="Email"
+            value={state.email}
+            onChange={(value) => {
+              setState({ ...state, email: value });
+            }}
+            type="email"
+            width="100%"
+          />
+          <div className="p-field">
+            <label htmlFor={"others"} className="p-d-block">
+              Other details
+            </label>
+            <InputTextarea
+              id="others"
+              rows={5}
+              cols={30}
+              value={state.orderDetails}
+              onChange={(e) =>
+                setState({ ...state, orderDetails: e.target.value })
+              }
+              style={{ width: "100%" }}
+            />
+          </div>
         </div>
-        <div className="p-col-4 p-lg-2 p-md-3 text-center">
-          <h3>Quantity</h3>
-        </div>
-        <div className="p-col-4 p-lg-2 p-md-3 text-right">
-          <h3>Price per unit</h3>
+        <div className="p-col-12 p-md-7">
+          {/* <h3>Delivery area</h3> */}
+          <MapContainer
+            center={shopCoordonates}
+            zoom={13}
+            scrollWheelZoom={false}
+            style={{ height: "500px", width: "100%" }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={shopCoordonates}>
+              <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+              </Popup>
+            </Marker>
+            {geolocationData && (
+              <Marker
+                position={[geolocationData.latitude, geolocationData.longitude]}
+              >
+                <Popup>
+                  A pretty CSS3 popup. <br /> Easily customizable.
+                </Popup>
+              </Marker>
+            )}
+            <Circle
+              center={shopCoordonates}
+              pathOptions={redOptions}
+              radius={2000}
+            />
+          </MapContainer>
         </div>
       </div>
-      {cartItems &&
-        cartItems.map((x, index) => (
-          <CartItem
-            key={index}
-            product={x}
-            quantity={quantities[x._id]}
-            setQuantity={(quantity) => {
-              if (quantity > 0) {
-                setQuantities({ ...quantities, [x._id]: quantity });
-              }
-            }}
-            removeItem={() => {
-              removeProduct(x._id);
-            }}
-          />
-        ))}
-      <Total>
-        <h1>Total</h1>
-        <div className="right-side">
-          <h3 style={{ marginBottom: "unset" }}>{totalPrice}</h3>
-          <div className="transport">
-            {totalPrice < FreeDeliveryLimit ? (
-              <>
-                <h3>{`+${DeliveryFee} delivery fee`}</h3>
-                <strong className="free">
-                  *free delivery for orders over {FreeDeliveryLimit}
-                </strong>
-              </>
-            ) : (
-              <h3 className="free">free delivery</h3>
-            )}
-          </div>
-          <h1>{"=" + (totalPrice + DeliveryFee)}</h1>
-        </div>
-      </Total>
     </>
   );
 };

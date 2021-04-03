@@ -8,6 +8,7 @@ const CustomInput = ({
   type,
   errorMessage,
   width,
+  disabled,
 }) => {
   return (
     <>
@@ -25,6 +26,7 @@ const CustomInput = ({
           className={`${errorMessage ? "p-invalid" : ""} p-d-block`}
           type={type}
           style={{ width }}
+          disabled={disabled || false}
         />
         {errorMessage && (
           <small id={`${id}-help`} className="p-error p-d-block">

@@ -1,145 +1,123 @@
 import React, { useState, useEffect } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  CircleMarker,
-  Circle,
-  Popup,
-} from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import pointer_red from "../../assets/images/map_pointer_red.png";
-import pointer_orange from "../../assets/images/map_pointer_orange.png";
+import styled from "styled-components";
+import CartItem from "../base/CartItem";
 
-import CustomInput from "../base/CustomInput";
-import { InputTextarea } from "primereact/inputtextarea";
+import { getProducts } from "../../services/productService";
+import { getCartProducts, setCartProducts } from "../../utils/util";
 
-let DefaultIcon = L.icon({
-  iconUrl: pointer_red,
-  iconSize: [20, 35],
-  shadowSize: [3, 3],
-  iconAnchor: [10, 35],
-});
+const Total = styled.div`
+  display: flex;
+  border-bottom: 1px solid;
+  justify-content: space-between;
+  .right-side {
+    text-align: right;
+  }
+  .free {
+    color: green;
+  }
+  .transport {
+    h3 {
+      margin: unset;
+    }
+    h1 {
+      margin-top: 10px;
+    }
+  }
+`;
 
-L.Marker.prototype.options.icon = DefaultIcon;
-
-const ShoppingCartStep2 = ({ state, setState }) => {
-  const [geolocationData, setGeolocatiobData] = useState(null);
+const ShoppingCartStep2 = ({ includeDelivery }) => {
+  const FreeDeliveryLimit = 35;
+  const DeliveryFee = 10;
+  const [cartItems, setCartItems] = useState([]);
+  const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
-    const handleGeolocation = (event) => {
-      setGeolocatiobData({
-        latitude: event.coords.latitude,
-        longitude: event.coords.longitude,
-      });
-    };
-    let watchId = 0;
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(handleGeolocation);
-      watchId = navigator.geolocation.watchPosition(handleGeolocation);
-    } else {
-      // setAllowGeolocation(false);
-    }
+    load();
   }, []);
 
-  const shopCoordonates = [45.14346740339734, 24.675206429104545];
-  const redOptions = { color: "#ffa500ed" };
+  useEffect(() => {
+    setCartProducts(quantities);
+  }, [quantities]);
 
+  const load = async () => {
+    let storedProducts = getCartProducts();
+    setQuantities(storedProducts);
+    let searchParameters = { ids: Object.keys(storedProducts) };
+    let result = await getProducts(searchParameters);
+    setCartItems(result.data);
+  };
+
+  const getTotalPrice = () => {
+    let totalPrice = 0;
+    for (let product of cartItems) {
+      totalPrice += product.price * quantities[product._id];
+    }
+    return totalPrice;
+  };
+
+  const removeProduct = (productId) => {
+    let newProducts = [...cartItems];
+    let index = newProducts.indexOf(
+      newProducts.find((x) => x._id === productId)
+    );
+    newProducts.splice(index, 1);
+    setCartItems(newProducts);
+
+    let newQuantities = { ...quantities };
+    delete newQuantities[productId];
+    setQuantities(newQuantities);
+  };
+  const totalPrice = getTotalPrice();
   return (
     <>
       <div className="p-grid">
-        <div className="p-col-12 p-md-5">
-          <CustomInput
-            id="name"
-            label="Name"
-            value={state.name}
-            onChange={(value) => {
-              setState({ ...state, name: value });
-            }}
-            type="text"
-            width="100%"
-          />
-          <CustomInput
-            id="street"
-            label="Street"
-            value={state.street}
-            onChange={(value) => {
-              setState({ ...state, street: value });
-            }}
-            type="text"
-            width="100%"
-          />
-          <CustomInput
-            id="number"
-            label="Number"
-            value={state.number}
-            onChange={(value) => {
-              setState({ ...state, number: value });
-            }}
-            type="text"
-            width="100%"
-          />
-          <CustomInput
-            id="phone"
-            label="Phone"
-            value={state.phone}
-            onChange={(value) => {
-              setState({ ...state, phone: value });
-            }}
-            type="text"
-            width="100%"
-          />
-          <div className="p-field">
-            <label htmlFor={"others"} className="p-d-block">
-              Other details
-            </label>
-            <InputTextarea
-              id="others"
-              rows={5}
-              cols={30}
-              value={state.orderDetails}
-              onChange={(e) =>
-                setState({ ...state, orderDetails: e.target.value })
-              }
-              style={{ width: "100%" }}
-            />
-          </div>
+        <div className="p-col-4 p-lg-8 p-md-6">
+          <h3>Products</h3>
         </div>
-        <div className="p-col-12 p-md-7">
-          {/* <h3>Delivery area</h3> */}
-          <MapContainer
-            center={shopCoordonates}
-            zoom={13}
-            scrollWheelZoom={false}
-            style={{ height: "500px", width: "100%" }}
-          >
-            <TileLayer
-              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <Marker position={shopCoordonates}>
-              <Popup>
-                A pretty CSS3 popup. <br /> Easily customizable.
-              </Popup>
-            </Marker>
-            {geolocationData && (
-              <Marker
-                position={[geolocationData.latitude, geolocationData.longitude]}
-              >
-                <Popup>
-                  A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
-              </Marker>
-            )}
-            <Circle
-              center={shopCoordonates}
-              pathOptions={redOptions}
-              radius={2000}
-            />
-          </MapContainer>
+        <div className="p-col-4 p-lg-2 p-md-3 text-center">
+          <h3>Quantity</h3>
+        </div>
+        <div className="p-col-4 p-lg-2 p-md-3 text-right">
+          <h3>Price per unit</h3>
         </div>
       </div>
+      {cartItems &&
+        cartItems.map((x, index) => (
+          <CartItem
+            key={index}
+            product={x}
+            quantity={quantities[x._id]}
+            setQuantity={(quantity) => {
+              if (quantity > 0) {
+                setQuantities({ ...quantities, [x._id]: quantity });
+              }
+            }}
+            removeItem={() => {
+              removeProduct(x._id);
+            }}
+          />
+        ))}
+      <Total>
+        <h1>Total</h1>
+        <div className="right-side">
+          <h3 style={{ marginBottom: "unset" }}>{totalPrice}</h3>
+          {includeDelivery && (
+            <div className="transport">
+              {totalPrice < FreeDeliveryLimit ? (
+                <>
+                  <h3>{`+${DeliveryFee} delivery fee`}</h3>
+                  <strong className="free">
+                    *free delivery for orders over {FreeDeliveryLimit}
+                  </strong>
+                </>
+              ) : (
+                <h3 className="free">free delivery</h3>
+              )}
+            </div>
+          )}
+          <h1>{"=" + (totalPrice + (includeDelivery ? DeliveryFee : 0))}</h1>
+        </div>
+      </Total>
     </>
   );
 };
