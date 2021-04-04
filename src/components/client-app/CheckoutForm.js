@@ -26,7 +26,7 @@ const PaymentButton = styled.button`
   }
 `;
 
-export default function CheckoutForm() {
+export default function CheckoutForm({ orderDetails }) {
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState("");
@@ -38,12 +38,12 @@ export default function CheckoutForm() {
   useEffect(() => {
     // Create PaymentIntent as soon as the page loads
     window
-      .fetch("http://localhost:4000/payment", {
+      .fetch("http://localhost:4000/payments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ items: [{ id: "xl-tshirt" }] }),
+        body: JSON.stringify({ items: orderDetails.products }),
       })
       .then((res) => {
         return res.json();

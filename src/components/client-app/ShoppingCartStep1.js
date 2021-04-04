@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import {
   MapContainer,
@@ -13,6 +13,7 @@ import "leaflet/dist/leaflet.css";
 import pointer_red from "../../assets/images/map_pointer_red.png";
 import pointer_orange from "../../assets/images/map_pointer_orange.png";
 
+import ShoppingCartContext from "./contexts/ShoppingCartContext";
 import CustomInput from "../base/CustomInput";
 import { InputTextarea } from "primereact/inputtextarea";
 import { RadioButton } from "primereact/radiobutton";
@@ -38,12 +39,23 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const ShoppingCartStep1 = ({ state, setState }) => {
-  const [geolocationData, setGeolocatiobData] = useState(null);
+const ShoppingCartStep1 = () => {
+  const {
+    cartState: { orderDetails },
+    cartState,
+    setCartState,
+  } = useContext(ShoppingCartContext);
+  const [geolocationData, setGeolocationData] = useState(null);
+
+  const setOrderDetails = (key, value) => {
+    let newState = { ...orderDetails };
+    newState[key] = value;
+    setCartState({ ...cartState, orderDetails: newState });
+  };
 
   useEffect(() => {
     const handleGeolocation = (event) => {
-      setGeolocatiobData({
+      setGeolocationData({
         latitude: event.coords.latitude,
         longitude: event.coords.longitude,
       });
@@ -94,7 +106,7 @@ const ShoppingCartStep1 = ({ state, setState }) => {
       2,
       2
     );
-  console.log(isDeliveryAvailable);
+
   return (
     <>
       <div className="p-grid">
@@ -104,8 +116,8 @@ const ShoppingCartStep1 = ({ state, setState }) => {
               <RadioButton
                 inputId="delivery1"
                 name="delivery"
-                onChange={(e) => setState({ ...state, includeDelivery: true })}
-                checked={state.includeDelivery === true}
+                onChange={(e) => setOrderDetails("includeDelivery", true)}
+                checked={orderDetails.includeDelivery === true}
               />
               <label htmlFor="delivery1">Home delivery</label>
             </div>
@@ -113,26 +125,26 @@ const ShoppingCartStep1 = ({ state, setState }) => {
               <RadioButton
                 inputId="delivery2"
                 name="delivery"
-                onChange={(e) => setState({ ...state, includeDelivery: false })}
-                checked={state.includeDelivery === false}
+                onChange={(e) => setOrderDetails("includeDelivery", false)}
+                checked={orderDetails.includeDelivery === false}
               />
               <label htmlFor="delivery2">Takeaway</label>
             </div>
-            {state.includeDelivery && (
+            {orderDetails.includeDelivery && (
               <DeliveryInfo>
                 Home delivery service it's available only in Curtea de Arges
               </DeliveryInfo>
             )}
           </DeliveryOptions>
-          {state.includeDelivery && (
+          {orderDetails.includeDelivery && (
             <div className="p-grid">
               <div className="p-col-12 p-md-8">
                 <CustomInput
                   id="street"
                   label="Street"
-                  value={state.street}
+                  value={orderDetails.street}
                   onChange={(value) => {
-                    setState({ ...state, street: value });
+                    setOrderDetails("street", value);
                   }}
                   type="text"
                   width="100%"
@@ -142,9 +154,9 @@ const ShoppingCartStep1 = ({ state, setState }) => {
                 <CustomInput
                   id="number"
                   label="Number"
-                  value={state.number}
+                  value={orderDetails.number}
                   onChange={(value) => {
-                    setState({ ...state, number: value });
+                    setOrderDetails("number", value);
                   }}
                   type="text"
                   width="100%"
@@ -155,9 +167,9 @@ const ShoppingCartStep1 = ({ state, setState }) => {
           <CustomInput
             id="name"
             label="Name"
-            value={state.name}
+            value={orderDetails.name}
             onChange={(value) => {
-              setState({ ...state, name: value });
+              setOrderDetails("name", value);
             }}
             type="text"
             width="100%"
@@ -165,9 +177,9 @@ const ShoppingCartStep1 = ({ state, setState }) => {
           <CustomInput
             id="phone"
             label="Phone"
-            value={state.phone}
+            value={orderDetails.phone}
             onChange={(value) => {
-              setState({ ...state, phone: value });
+              setOrderDetails("phone", value);
             }}
             type="tel"
             width="100%"
@@ -175,9 +187,9 @@ const ShoppingCartStep1 = ({ state, setState }) => {
           <CustomInput
             id="email"
             label="Email"
-            value={state.email}
+            value={orderDetails.email}
             onChange={(value) => {
-              setState({ ...state, email: value });
+              setOrderDetails("email", value);
             }}
             type="email"
             width="100%"
@@ -190,10 +202,10 @@ const ShoppingCartStep1 = ({ state, setState }) => {
               id="others"
               rows={5}
               cols={30}
-              value={state.orderDetails}
-              onChange={(e) =>
-                setState({ ...state, orderDetails: e.target.value })
-              }
+              value={orderDetails.details}
+              onChange={(e) => {
+                setOrderDetails("details", e.target.value);
+              }}
               style={{ width: "100%" }}
             />
           </div>

@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./CheckoutForm";
 import "../../styles/payment-form-style.css";
+
+import ShoppingCartContext from "./contexts/ShoppingCartContext";
 
 const PageStyle = styled.div`
   @media screen and (max-width: 550px) {
@@ -58,11 +60,8 @@ const promise = loadStripe(
   "pk_test_51I0QVrKwRJOVXJjj6alwm3EH3qsGIGIatJofCyurbdZkWw5rPsg1c8x9sesaw2va5o8MAfrBWRq7rPGsoltRiP5z00KCS2oBkO"
 );
 
-export default function ShoppingCartStep3({
-  summaryItems,
-  totalPrice,
-  deliveryFee,
-}) {
+export default function ShoppingCartStep3({ summaryItems }) {
+  const { cartState, setCartState } = useContext(ShoppingCartContext);
   const summary = summaryItems.map((x, index) => (
     <SummaryItem
       key={index}
@@ -76,21 +75,24 @@ export default function ShoppingCartStep3({
       <SummaryWrapper>
         <h3 className="title">Summary</h3>
         {summary}
-        {deliveryFee ? (
+        {cartState.orderDetails.deliveryCost ? (
           <div className="summary-item ">
             <div className="product">Delivery fee</div>
-            <div className="price">{deliveryFee}</div>
+            <div className="price">{cartState.orderDetails.deliveryCost}</div>
           </div>
         ) : (
           ""
         )}
         <div className="p-d-flex p-jc-between totals">
           <div>Total value</div>
-          <div>{totalPrice + deliveryFee}</div>
+          <div>
+            {cartState.orderDetails.totalPrice +
+              cartState.orderDetails.deliveryCost}
+          </div>
         </div>
       </SummaryWrapper>
       <Elements stripe={promise}>
-        <CheckoutForm />
+        <CheckoutForm orderDetails={cartState.orderDetails} />
       </Elements>
     </PageStyle>
   );

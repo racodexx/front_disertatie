@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { Steps } from "primereact/steps";
 import { Button } from "primereact/button";
 
+import ShoppingCartContext from "./contexts/ShoppingCartContext";
 import ShoppingCartStep2 from "./ShoppingCartStep2";
 import ShoppingCartStep1 from "./ShoppingCartStep1";
 import ShoppingCartStep3 from "./ShoppingCartStep3";
 import PaymentType from "../../utils/enums/PaymentType";
 
 import { getProducts } from "../../services/productService";
-import { getCartProducts, setCartProducts } from "../../utils/util";
+import { getCartProducts } from "../../utils/util";
 
 const PageWrapper = styled.div`
   width: 70%;
@@ -48,64 +49,58 @@ const DeliveryFee = 10;
 const ShoppingCart = () => {
   const [step, setStep] = useState(PaymentSteps.OrderDetails);
 
-  const [orderDetails, setOrderDetails] = useState({
-    name: "",
-    street: "",
-    number: "",
-    phone: "",
-    email: "",
-    description: "",
-    includeDelivery: false,
-    paymentType: PaymentType.Card,
-    stripePaymentId: "",
+  const [cartState, setCartState] = useState({
+    orderDetails: {
+      products: [],
+      name: "",
+      street: "",
+      number: "",
+      phone: "",
+      email: "",
+      description: "",
+      includeDelivery: false,
+      paymentType: PaymentType.Card,
+      stripePaymentId: "",
+      totalPrice: 0,
+      deliveryCost: 0,
+    },
+    cartItems: [],
+    freeDeliveryLimit: FreeDeliveryLimit,
   });
-
-  const [cartItems, setCartItems] = useState([]);
-  const [quantities, setQuantities] = useState();
 
   useEffect(() => {
     load();
   }, []);
 
-  useEffect(() => {
-    setCartProducts(quantities);
-  }, [quantities]);
-
   const load = async () => {
     let storedProducts = getCartProducts();
-    setQuantities(storedProducts);
     let searchParameters = { ids: Object.keys(storedProducts) };
     let result = await getProducts(searchParameters);
-    setCartItems(result.data);
+    let newState = { ...cartState };
+    newState.orderDetails.products = storedProducts;
+    newState.cartItems = result.data;
+    setCartState(newState);
   };
 
-  const getTotalPrice = () => {
+  const updatePrice = () => {
     let totalPrice = 0;
     let deliveryCost = 0;
-    for (let product of cartItems) {
-      totalPrice += product.price * quantities[product._id];
+    for (let product of cartState.cartItems) {
+      totalPrice +=
+        product.price * cartState.orderDetails.products[product._id];
     }
 
-    if (orderDetails.includeDelivery && totalPrice < FreeDeliveryLimit) {
+    if (
+      cartState.orderDetails.includeDelivery &&
+      totalPrice < FreeDeliveryLimit
+    ) {
       deliveryCost = DeliveryFee;
     }
-    return { totalPrice, deliveryCost };
+    let newState = { ...cartState };
+    newState.orderDetails.totalPrice = totalPrice;
+    newState.orderDetails.deliveryCost = deliveryCost;
+    setCartState(newState);
   };
-
-  const removeProduct = (productId) => {
-    let newProducts = [...cartItems];
-    let index = newProducts.indexOf(
-      newProducts.find((x) => x._id === productId)
-    );
-    newProducts.splice(index, 1);
-    setCartItems(newProducts);
-
-    let newQuantities = { ...quantities };
-    delete newQuantities[productId];
-    setQuantities(newQuantities);
-  };
-
-  const { totalPrice, deliveryCost } = getTotalPrice();
 
   const items = [
     { id: PaymentSteps.OrderDetails, label: "Order details" },
@@ -133,11 +128,11 @@ const ShoppingCart = () => {
     setStep(newStep);
   };
 
-  const summaryItems = cartItems.map((x) => {
+  const summaryItems = cartState.cartItems.map((x) => {
     return {
       productName: x.name,
-      quantity: quantities[x._id],
-      price: quantities[x._id] * x.price,
+      quantity: cartState.orderDetails.products[x._id],
+      price: cartState.orderDetails.products[x._id] * x.price,
     };
   });
 
@@ -154,28 +149,15 @@ const ShoppingCart = () => {
         />
       </StepsWrapper>
       <ContentWrapper>
-        {step === PaymentSteps.OrderDetails && (
-          <ShoppingCartStep1 state={orderDetails} setState={setOrderDetails} />
-        )}
-        {step === PaymentSteps.ConfirmProducts && (
-          <ShoppingCartStep2
-            includeDelivery={orderDetails.includeDelivery}
-            deliveryFee={deliveryCost}
-            freeDeliveryLimit={FreeDeliveryLimit}
-            cartItems={cartItems}
-            quantities={quantities}
-            setQuantities={setQuantities}
-            totalPrice={totalPrice}
-            removeProduct={removeProduct}
-          />
-        )}
-        {step === PaymentSteps.Payment && (
-          <ShoppingCartStep3
-            summaryItems={summaryItems}
-            totalPrice={totalPrice}
-            deliveryFee={orderDetails.includeDelivery && deliveryCost}
-          />
-        )}
+        <ShoppingCartContext.Provider value={{ cartState, setCartState }}>
+          {step === PaymentSteps.OrderDetails && <ShoppingCartStep1 />}
+          {step === PaymentSteps.ConfirmProducts && (
+            <ShoppingCartStep2 updatePrice={updatePrice} />
+          )}
+          {step === PaymentSteps.Payment && (
+            <ShoppingCartStep3 summaryItems={summaryItems} />
+          )}
+        </ShoppingCartContext.Provider>
       </ContentWrapper>
       {step !== PaymentSteps.Payment && (
         <div style={{ textAlign: "center", margin: "20px 0px" }}>

@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import CartItem from "../base/CartItem";
+import ShoppingCartContext from "./contexts/ShoppingCartContext";
+import { setCartProducts } from "../../utils/util";
 
 const Total = styled.div`
   display: flex;
@@ -22,16 +24,29 @@ const Total = styled.div`
   }
 `;
 
-const ShoppingCartStep2 = ({
-  includeDelivery,
-  deliveryFee,
-  freeDeliveryLimit,
-  cartItems,
-  quantities,
-  setQuantities,
-  removeProduct,
-  totalPrice,
-}) => {
+const ShoppingCartStep2 = ({ updatePrice }) => {
+  const { cartState, setCartState } = useContext(ShoppingCartContext);
+
+  const setOrderProductQuantity = (productId, quantity) => {
+    let newState = { ...cartState };
+    newState.orderDetails.products[productId] = quantity;
+    setCartState(newState);
+    setCartProducts(newState.orderDetails.products);
+    updatePrice();
+  };
+
+  const removeProduct = (productId) => {
+    let newState = { ...cartState };
+    let index = newState.cartItems.indexOf(
+      newState.cartItems.find((x) => x._id === productId)
+    );
+    newState.cartItems.splice(index, 1);
+    delete newState.orderDetails.products[productId];
+    setCartState(newState);
+    setCartProducts(newState.orderDetails.products);
+    updatePrice();
+  };
+
   return (
     <>
       <div className="p-grid">
@@ -45,15 +60,15 @@ const ShoppingCartStep2 = ({
           <h3>Price per unit</h3>
         </div>
       </div>
-      {cartItems &&
-        cartItems.map((x, index) => (
+      {cartState.cartItems &&
+        cartState.cartItems.map((x, index) => (
           <CartItem
             key={index}
             product={x}
-            quantity={quantities[x._id]}
+            quantity={cartState.orderDetails.products[x._id]}
             setQuantity={(quantity) => {
               if (quantity > 0) {
-                setQuantities({ ...quantities, [x._id]: quantity });
+                setOrderProductQuantity(x._id, quantity);
               }
             }}
             removeItem={() => {
@@ -64,21 +79,29 @@ const ShoppingCartStep2 = ({
       <Total>
         <h1>Total</h1>
         <div className="right-side">
-          <h3 style={{ marginBottom: "unset" }}>{totalPrice}</h3>
+          <h3 style={{ marginBottom: "unset" }}>
+            {cartState.orderDetails.totalPrice}
+          </h3>
           <div className="transport">
-            {deliveryFee ? (
+            {cartState.orderDetails.deliveryCost ? (
               <>
-                <h3>{`+${deliveryFee} delivery fee`}</h3>
+                <h3>{`+${cartState.orderDetails.deliveryCost} delivery fee`}</h3>
                 <strong className="free">
-                  *free delivery for orders over {freeDeliveryLimit}
+                  *free delivery for orders over {cartState.freeDeliveryLimit}
                 </strong>
                 )
               </>
             ) : (
-              includeDelivery && <h3 className="free">free delivery</h3>
+              cartState.orderDetails.includeDelivery && (
+                <h3 className="free">free delivery</h3>
+              )
             )}
           </div>
-          <h1>{"=" + (totalPrice + deliveryFee)}</h1>
+          <h1>
+            {"=" +
+              (cartState.orderDetails.totalPrice +
+                cartState.orderDetails.deliveryCost)}
+          </h1>
         </div>
       </Total>
     </>
