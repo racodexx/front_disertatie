@@ -42,6 +42,7 @@ const PaymentSteps = {
   ConfirmProducts: 1,
   Payment: 2,
 };
+const FreeDeliveryLimit = 35;
 const DeliveryFee = 10;
 
 const ShoppingCart = () => {
@@ -80,13 +81,15 @@ const ShoppingCart = () => {
 
   const getTotalPrice = () => {
     let totalPrice = 0;
+    let deliveryCost = 0;
     for (let product of cartItems) {
       totalPrice += product.price * quantities[product._id];
     }
-    if (orderDetails.includeDelivery) {
-      totalPrice += DeliveryFee;
+
+    if (orderDetails.includeDelivery && totalPrice < FreeDeliveryLimit) {
+      deliveryCost = DeliveryFee;
     }
-    return totalPrice;
+    return { totalPrice, deliveryCost };
   };
 
   const removeProduct = (productId) => {
@@ -102,7 +105,7 @@ const ShoppingCart = () => {
     setQuantities(newQuantities);
   };
 
-  const totalPrice = getTotalPrice();
+  const { totalPrice, deliveryCost } = getTotalPrice();
 
   const items = [
     { id: PaymentSteps.OrderDetails, label: "Order details" },
@@ -157,6 +160,8 @@ const ShoppingCart = () => {
         {step === PaymentSteps.ConfirmProducts && (
           <ShoppingCartStep2
             includeDelivery={orderDetails.includeDelivery}
+            deliveryFee={deliveryCost}
+            freeDeliveryLimit={FreeDeliveryLimit}
             cartItems={cartItems}
             quantities={quantities}
             setQuantities={setQuantities}
@@ -168,12 +173,12 @@ const ShoppingCart = () => {
           <ShoppingCartStep3
             summaryItems={summaryItems}
             totalPrice={totalPrice}
-            deliveryFee={orderDetails.includeDelivery && DeliveryFee}
+            deliveryFee={orderDetails.includeDelivery && deliveryCost}
           />
         )}
       </ContentWrapper>
       {step !== PaymentSteps.Payment && (
-        <div style={{ textAlign: "center", marginTop: "10px" }}>
+        <div style={{ textAlign: "center", margin: "20px 0px" }}>
           <Button onClick={nextStep}>Next step</Button>
         </div>
       )}

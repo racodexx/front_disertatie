@@ -6,6 +6,9 @@ import CheckoutForm from "./CheckoutForm";
 import "../../styles/payment-form-style.css";
 
 const PageStyle = styled.div`
+  @media screen and (max-width: 550px) {
+    width: 100%;
+  }
   width: 500px;
   margin: auto;
 `;
@@ -55,7 +58,7 @@ const promise = loadStripe(
   "pk_test_51I0QVrKwRJOVXJjj6alwm3EH3qsGIGIatJofCyurbdZkWw5rPsg1c8x9sesaw2va5o8MAfrBWRq7rPGsoltRiP5z00KCS2oBkO"
 );
 
-export default function ShoppingCartStep3V2({
+export default function ShoppingCartStep3({
   summaryItems,
   totalPrice,
   deliveryFee,
@@ -73,15 +76,17 @@ export default function ShoppingCartStep3V2({
       <SummaryWrapper>
         <h3 className="title">Summary</h3>
         {summary}
-        {deliveryFee && (
+        {deliveryFee ? (
           <div className="summary-item ">
             <div className="product">Delivery fee</div>
             <div className="price">{deliveryFee}</div>
           </div>
+        ) : (
+          ""
         )}
         <div className="p-d-flex p-jc-between totals">
           <div>Total value</div>
-          <div>{totalPrice}</div>
+          <div>{totalPrice + deliveryFee}</div>
         </div>
       </SummaryWrapper>
       <Elements stripe={promise}>

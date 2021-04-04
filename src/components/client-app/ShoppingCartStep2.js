@@ -24,15 +24,14 @@ const Total = styled.div`
 
 const ShoppingCartStep2 = ({
   includeDelivery,
+  deliveryFee,
+  freeDeliveryLimit,
   cartItems,
   quantities,
   setQuantities,
   removeProduct,
   totalPrice,
 }) => {
-  const FreeDeliveryLimit = 35;
-  const DeliveryFee = 10;
-
   return (
     <>
       <div className="p-grid">
@@ -66,21 +65,20 @@ const ShoppingCartStep2 = ({
         <h1>Total</h1>
         <div className="right-side">
           <h3 style={{ marginBottom: "unset" }}>{totalPrice}</h3>
-          {includeDelivery && (
-            <div className="transport">
-              {totalPrice < FreeDeliveryLimit ? (
-                <>
-                  <h3>{`+${DeliveryFee} delivery fee`}</h3>
-                  <strong className="free">
-                    *free delivery for orders over {FreeDeliveryLimit}
-                  </strong>
-                </>
-              ) : (
-                <h3 className="free">free delivery</h3>
-              )}
-            </div>
-          )}
-          <h1>{"=" + totalPrice}</h1>
+          <div className="transport">
+            {deliveryFee ? (
+              <>
+                <h3>{`+${deliveryFee} delivery fee`}</h3>
+                <strong className="free">
+                  *free delivery for orders over {freeDeliveryLimit}
+                </strong>
+                )
+              </>
+            ) : (
+              includeDelivery && <h3 className="free">free delivery</h3>
+            )}
+          </div>
+          <h1>{"=" + (totalPrice + deliveryFee)}</h1>
         </div>
       </Total>
     </>
