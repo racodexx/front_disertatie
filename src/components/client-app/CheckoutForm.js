@@ -1,32 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import styled from "styled-components";
+import PaymentButton from "./PaymentButton";
+import { paymentIntent } from "../../services/paymentService";
 
-const PaymentButton = styled.button`
-  background: #5469d4;
-  font-family: Arial, sans-serif;
-  color: #ffffff;
-  border-radius: 0 0 4px 4px;
-  border: 0;
-  padding: 12px 16px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  display: block;
-  transition: all 0.2s ease;
-  box-shadow: 0px 4px 5.5px 0px rgba(0, 0, 0, 0.07);
-  width: 100%;
-
-  :hover {
-    filter: contrast(115%);
-  }
-  :disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-`;
-
-export default function CheckoutForm({ orderDetails }) {
+export default function CheckoutForm({ orderDetails, saveOrder }) {
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState("");
@@ -37,21 +14,13 @@ export default function CheckoutForm({ orderDetails }) {
 
   useEffect(() => {
     // Create PaymentIntent as soon as the page loads
-    window
-      .fetch("http://localhost:4000/payments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ items: orderDetails.products }),
-      })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        setClientSecret(data.clientSecret);
-      });
+    createPaymentIntent();
   }, []);
+
+  const createPaymentIntent = async () => {
+    let result = await paymentIntent(orderDetails.products);
+    setClientSecret(result.clientSecret);
+  };
 
   const cardStyle = {
     style: {
@@ -95,6 +64,7 @@ export default function CheckoutForm({ orderDetails }) {
       setError(null);
       setProcessing(false);
       setSucceeded(true);
+      await saveOrder(payload.paymentIntent.payment_method);
     }
   };
 
@@ -125,7 +95,7 @@ export default function CheckoutForm({ orderDetails }) {
         Payment succeeded, see the result in your
         <a href={`https://dashboard.stripe.com/test/payments`}>
           Stripe dashboard.
-        </a>{" "}
+        </a>
         Refresh the page to pay again.
       </p>
     </form>

@@ -60,22 +60,24 @@ const ShoppingCartStep2 = ({ updatePrice }) => {
           <h3>Price per unit</h3>
         </div>
       </div>
-      {cartState.cartItems &&
-        cartState.cartItems.map((x, index) => (
-          <CartItem
-            key={index}
-            product={x}
-            quantity={cartState.orderDetails.products[x._id]}
-            setQuantity={(quantity) => {
-              if (quantity > 0) {
-                setOrderProductQuantity(x._id, quantity);
-              }
-            }}
-            removeItem={() => {
-              removeProduct(x._id);
-            }}
-          />
-        ))}
+      <div style={{ overflowY: "auto", maxHeight: "460px" }}>
+        {cartState.cartItems &&
+          cartState.cartItems.map((x, index) => (
+            <CartItem
+              key={index}
+              product={x}
+              quantity={cartState.orderDetails.products[x._id]}
+              setQuantity={(quantity) => {
+                if (quantity > 0) {
+                  setOrderProductQuantity(x._id, quantity);
+                }
+              }}
+              removeItem={() => {
+                removeProduct(x._id);
+              }}
+            />
+          ))}
+      </div>
       <Total>
         <h1>Total</h1>
         <div className="right-side">

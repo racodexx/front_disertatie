@@ -48,6 +48,7 @@ const DeliveryFee = 10;
 
 const ShoppingCart = () => {
   const [step, setStep] = useState(PaymentSteps.OrderDetails);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const [cartState, setCartState] = useState({
     orderDetails: {
@@ -72,6 +73,13 @@ const ShoppingCart = () => {
     load();
   }, []);
 
+  useEffect(() => {
+    if (!hasLoaded) {
+      return;
+    }
+    updatePrice();
+  }, [hasLoaded]);
+
   const load = async () => {
     let storedProducts = getCartProducts();
     let searchParameters = { ids: Object.keys(storedProducts) };
@@ -80,6 +88,7 @@ const ShoppingCart = () => {
     newState.orderDetails.products = storedProducts;
     newState.cartItems = result.data;
     setCartState(newState);
+    setHasLoaded(true);
   };
 
   const updatePrice = () => {

@@ -4,6 +4,10 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./CheckoutForm";
 import "../../styles/payment-form-style.css";
+import { RadioButton } from "primereact/radiobutton";
+import PaymentType from "../../utils/enums/PaymentType";
+import PaymentButton from "./PaymentButton";
+import { addOrder } from "../../services/orderService";
 
 import ShoppingCartContext from "./contexts/ShoppingCartContext";
 
@@ -20,9 +24,6 @@ const SummaryWrapper = styled.div`
   padding: 20px;
   border-top-right-radius: 10px;
   border-top-left-radius: 10px;
-  .title {
-    margin-top: unset;
-  }
   .summary-item {
     display: flex;
     align-items: center;
@@ -44,6 +45,20 @@ const SummaryWrapper = styled.div`
   }
 `;
 
+const PaymentMethodWrapper = styled.div`
+  width: 100%;
+  align-self: center;
+  box-shadow: 0px 0px 0px 0.5px rgba(50, 50, 93, 0.1),
+    0px 2px 5px 0px rgba(50, 50, 93, 0.1), 0px 1px 1.5px 0px rgba(0, 0, 0, 0.07);
+  border-radius: 7px;
+  padding: 20px;
+  margin: auto;
+
+  @media only screen and (max-width: 550px) {
+    padding: 20px 10px;
+  }
+`;
+
 const SummaryItem = ({ name, quantity, price }) => {
   return (
     <div className="summary-item">
@@ -62,6 +77,35 @@ const promise = loadStripe(
 
 export default function ShoppingCartStep3({ summaryItems }) {
   const { cartState, setCartState } = useContext(ShoppingCartContext);
+  const setPaymentType = (paymentType) => {
+    let newState = { ...cartState };
+    newState.orderDetails.paymentType = paymentType;
+    setCartState(newState);
+  };
+
+  const saveOrder = async (stripePaymentId = null) => {
+    let newOrder = {
+      products: cartState.orderDetails.products,
+      name: cartState.orderDetails.name,
+      phone: cartState.orderDetails.phone,
+      email: cartState.orderDetails.email,
+      includeDelivery: cartState.orderDetails.includeDelivery,
+      paymentType: cartState.orderDetails.paymentType,
+    };
+    if (cartState.orderDetails.includeDelivery) {
+      newOrder.street = cartState.orderDetails.street;
+      newOrder.number = cartState.orderDetails.number;
+    }
+    if (cartState.orderDetails.description) {
+      newOrder.description = cartState.orderDetails.description;
+    }
+    if (cartState.orderDetails.paymentType === PaymentType.Card) {
+      newOrder.stripePaymentId = stripePaymentId;
+    }
+    console.log(newOrder);
+    let result = await addOrder(newOrder);
+  };
+
   const summary = summaryItems.map((x, index) => (
     <SummaryItem
       key={index}
@@ -73,7 +117,7 @@ export default function ShoppingCartStep3({ summaryItems }) {
   return (
     <PageStyle>
       <SummaryWrapper>
-        <h3 className="title">Summary</h3>
+        <h3 style={{ marginTop: "unset" }}>Summary</h3>
         {summary}
         {cartState.orderDetails.deliveryCost ? (
           <div className="summary-item ">
@@ -91,9 +135,40 @@ export default function ShoppingCartStep3({ summaryItems }) {
           </div>
         </div>
       </SummaryWrapper>
-      <Elements stripe={promise}>
-        <CheckoutForm orderDetails={cartState.orderDetails} />
-      </Elements>
+      <PaymentMethodWrapper>
+        <h3 style={{ marginTop: "unset" }}>Payment method</h3>
+        <div className="p-grid">
+          <div className="p-field-radiobutton p-col-6">
+            <RadioButton
+              inputId="paymentCard"
+              name="paymentType"
+              onChange={(e) => setPaymentType(PaymentType.Card)}
+              checked={cartState.orderDetails.paymentType === PaymentType.Card}
+            />
+            <label htmlFor="paymentCard">Online (card)</label>
+          </div>
+          <div className="p-field-radiobutton p-col-6">
+            <RadioButton
+              inputId="paymentCash"
+              name="paymentType"
+              onChange={(e) => setPaymentType(PaymentType.Cash)}
+              checked={cartState.orderDetails.paymentType === PaymentType.Cash}
+            />
+            <label htmlFor="paymentCash">At delivery</label>
+          </div>
+        </div>
+        {cartState.orderDetails.paymentType === PaymentType.Card && (
+          <Elements stripe={promise}>
+            <CheckoutForm
+              orderDetails={cartState.orderDetails}
+              saveOrder={saveOrder}
+            />
+          </Elements>
+        )}
+        {cartState.orderDetails.paymentType === PaymentType.Cash && (
+          <PaymentButton onClick={saveOrder}>Finalize order</PaymentButton>
+        )}
+      </PaymentMethodWrapper>
     </PageStyle>
   );
 }
