@@ -11,7 +11,7 @@ import full_logo from "../../assets/images/full_logo_transparent.png";
 import interior from "../../assets/images/interior.jpg";
 import FoodCategory from "../../utils/enums/FoodCategory";
 
-import { addProductToCart } from "../../utils/util";
+import { addProductToCart_LS } from "../../utils/util";
 const Wrapper = styled.div`
   /* position: relative; */
 `;
@@ -244,7 +244,7 @@ const Home = () => {
       <FeaturedItem
         product={product}
         addToCart={() => {
-          addProductToCart(product._id);
+          addProductToCart_LS(product._id);
         }}
       />
     );

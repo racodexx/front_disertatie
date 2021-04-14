@@ -3,7 +3,11 @@ import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import PaymentButton from "./PaymentButton";
 import { paymentIntent } from "../../services/paymentService";
 
-export default function CheckoutForm({ orderDetails, saveOrder }) {
+export default function CheckoutForm({
+  orderDetails,
+  saveOrder,
+  setPaymentFinalized,
+}) {
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState("");
@@ -65,6 +69,7 @@ export default function CheckoutForm({ orderDetails, saveOrder }) {
       setProcessing(false);
       setSucceeded(true);
       await saveOrder(payload.paymentIntent.payment_method);
+      setPaymentFinalized();
     }
   };
 

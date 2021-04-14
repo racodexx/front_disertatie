@@ -39,7 +39,7 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const ShoppingCartStep1 = () => {
+const ShoppingCartStep1 = ({ fieldErrors, setFieldErrors }) => {
   const {
     cartState: { orderDetails },
     cartState,
@@ -51,6 +51,7 @@ const ShoppingCartStep1 = () => {
     let newState = { ...orderDetails };
     newState[key] = value;
     setCartState({ ...cartState, orderDetails: newState });
+    clearFieldError(key);
   };
 
   useEffect(() => {
@@ -69,43 +70,18 @@ const ShoppingCartStep1 = () => {
     }
   }, []);
 
+  const clearFieldError = (field) => {
+    if (!fieldErrors[field]) {
+      return;
+    }
+    let newState = { ...fieldErrors };
+    delete newState[field];
+    setFieldErrors(newState);
+  };
+
   const shopCoordonates = [45.14346740339734, 24.675206429104545];
 
-  const toRadians = (value) => {
-    return (value * Math.PI) / 180;
-  };
-
-  const distance = (lat1, lat2, lon1, lon2, el1, el2) => {
-    const R = 6371; // Radius of the earth
-    let latDistance = toRadians(lat2 - lat1);
-    let lonDistance = toRadians(lon2 - lon1);
-    let a =
-      Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
-      Math.cos(toRadians(lat1)) *
-        Math.cos(toRadians(lat2)) *
-        Math.sin(lonDistance / 2) *
-        Math.sin(lonDistance / 2);
-    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    let distance = R * c * 1000; // convert to meters
-
-    let height = el1 - el2;
-
-    distance = Math.pow(distance, 2) + Math.pow(height, 2);
-    return Math.sqrt(distance);
-  };
-
   const redOptions = { color: "#ffa500ed" };
-
-  const isDeliveryAvailable =
-    geolocationData &&
-    distance(
-      shopCoordonates[0],
-      geolocationData.latitude,
-      shopCoordonates[1],
-      geolocationData.longitude,
-      2,
-      2
-    );
 
   return (
     <>
@@ -148,6 +124,8 @@ const ShoppingCartStep1 = () => {
                   }}
                   type="text"
                   width="100%"
+                  required
+                  errorMessage={fieldErrors["street"]}
                 />
               </div>
               <div className="p-col-12 p-md-4">
@@ -160,6 +138,8 @@ const ShoppingCartStep1 = () => {
                   }}
                   type="text"
                   width="100%"
+                  required
+                  errorMessage={fieldErrors["number"]}
                 />
               </div>
             </div>
@@ -173,6 +153,8 @@ const ShoppingCartStep1 = () => {
             }}
             type="text"
             width="100%"
+            required
+            errorMessage={fieldErrors["name"]}
           />
           <CustomInput
             id="phone"
@@ -183,6 +165,8 @@ const ShoppingCartStep1 = () => {
             }}
             type="tel"
             width="100%"
+            required
+            errorMessage={fieldErrors["phone"]}
           />
           <CustomInput
             id="email"
@@ -193,6 +177,8 @@ const ShoppingCartStep1 = () => {
             }}
             type="email"
             width="100%"
+            required
+            errorMessage={fieldErrors["email"]}
           />
           <div className="p-field">
             <label htmlFor={"others"} className="p-d-block">
@@ -208,6 +194,9 @@ const ShoppingCartStep1 = () => {
               }}
               style={{ width: "100%" }}
             />
+          </div>
+          <div>
+            <span style={{ color: "red" }}>*</span> - required field
           </div>
         </div>
         <div className="p-col-12 p-md-7">

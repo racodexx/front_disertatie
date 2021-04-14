@@ -9,7 +9,12 @@ const AdminLayout = (props) => {
   return (
     <>
       <Navbar />
-      <div style={{ overflowY: "auto", height: contentHeight }}>
+      <div
+        style={{
+          overflowY: "auto",
+          height: contentHeight,
+        }}
+      >
         <div style={{ minHeight: contentHeight - FOOTER_HEIGHT }}>
           {props.children}
         </div>

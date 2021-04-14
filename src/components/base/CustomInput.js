@@ -9,12 +9,14 @@ const CustomInput = ({
   errorMessage,
   width,
   disabled,
+  required,
 }) => {
   return (
     <>
       <div className="p-field">
         <label htmlFor={id} className="p-d-block">
           {label}
+          {required && <span style={{ color: "red" }}>*</span>}
         </label>
         <InputText
           id={id}

@@ -75,7 +75,10 @@ const promise = loadStripe(
   "pk_test_51I0QVrKwRJOVXJjj6alwm3EH3qsGIGIatJofCyurbdZkWw5rPsg1c8x9sesaw2va5o8MAfrBWRq7rPGsoltRiP5z00KCS2oBkO"
 );
 
-export default function ShoppingCartStep3({ summaryItems }) {
+export default function ShoppingCartStep3({
+  summaryItems,
+  setPaymentFinalized,
+}) {
   const { cartState, setCartState } = useContext(ShoppingCartContext);
   const setPaymentType = (paymentType) => {
     let newState = { ...cartState };
@@ -162,6 +165,7 @@ export default function ShoppingCartStep3({ summaryItems }) {
             <CheckoutForm
               orderDetails={cartState.orderDetails}
               saveOrder={saveOrder}
+              setPaymentFinalized={setPaymentFinalized}
             />
           </Elements>
         )}

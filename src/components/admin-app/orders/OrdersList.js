@@ -5,22 +5,24 @@ import "primeflex/primeflex.css";
 
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
+import moment from "moment";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { FileUpload } from "primereact/fileupload";
-import { Rating } from "primereact/rating";
+// import { Rating } from "primereact/rating";
 import { Toolbar } from "primereact/toolbar";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
-import { InputTextarea } from "primereact/inputtextarea";
-import { RadioButton } from "primereact/radiobutton";
-import { InputNumber } from "primereact/inputnumber";
+// import { InputTextarea } from "primereact/inputtextarea";
+// import { RadioButton } from "primereact/radiobutton";
+// import { InputNumber } from "primereact/inputnumber";
 
 import { getOrders } from "../../../services/orderService";
 import OrderStatus from "../../../utils/enums/OrderStatus";
-import OrderStatusSelection from "../../../utils/dataSelections";
+import OrderDetailsView from "./OrderDetailsView";
+// import OrderStatusSelection from "../../../utils/dataSelections";
 
 const OrdersList = () => {
   let emptyOrder = {
@@ -55,7 +57,17 @@ const OrdersList = () => {
   const loadOrders = async () => {
     let result = await getOrders();
     if (result && result.data && result.data.data && result.data.data.length) {
-      setOrders(result.data.data);
+      let data = result.data.data;
+      let orders = [];
+      for (let item of data) {
+        let order = { ...item };
+        let date = moment(item.date).format("DD-MM-YYYY");
+        let time = moment(item.date).format("HH:mm ");
+        order.date = date;
+        order.time = time;
+        orders.push(order);
+      }
+      setOrders(orders);
     }
   };
 
@@ -140,8 +152,9 @@ const OrdersList = () => {
     }
   };
 
-  const editOrder = (order) => {
+  const showOrderdetails = (order) => {
     setOrder({ ...order });
+    console.log(order);
     setOrderDialog(true);
   };
 
@@ -255,8 +268,7 @@ const OrdersList = () => {
     let summary = "";
     if (rowData.products) {
       for (let item of rowData.products) {
-        let product = JSON.parse(item);
-        summary += product.quantity + "x" + product.name + " ";
+        summary += item.quantity + "x" + item.product.name + " ";
       }
     }
     return summary;
@@ -289,9 +301,9 @@ const OrdersList = () => {
     return (
       <React.Fragment>
         <Button
-          icon="pi pi-pencil"
+          icon="pi pi-search"
           className="p-button-rounded p-button-success p-mr-2"
-          onClick={() => editOrder(rowData)}
+          onClick={() => showOrderdetails(rowData)}
         />
         <Button
           icon="pi pi-trash"
@@ -397,6 +409,7 @@ const OrdersList = () => {
           ></Column>
           <Column field="_id" header="Id" sortable></Column>
           <Column field="date" header="Date" sortable></Column>
+          <Column field="time" header="Time" sortable></Column>
           <Column
             field="products"
             header="Summary"
@@ -404,15 +417,15 @@ const OrdersList = () => {
             sortable
           ></Column>
           <Column
-            field="price"
-            header="Price"
-            body={priceBodyTemplate}
-            sortable
-          ></Column>
-          <Column
             field="phone"
             header="Phone"
             // body={statusBodyTemplate}
+            sortable
+          ></Column>
+          <Column
+            field="price"
+            header="Price"
+            body={priceBodyTemplate}
             sortable
           ></Column>
           <Column
@@ -427,106 +440,14 @@ const OrdersList = () => {
 
       <Dialog
         visible={orderDialog}
-        style={{ width: "450px" }}
+        style={{ width: "850px" }}
         header="Order Details"
         modal
         className="p-fluid"
         footer={orderDialogFooter}
         onHide={hideDialog}
       >
-        <div className="p-field">
-          <label htmlFor="name">Name</label>
-          <InputText
-            id="name"
-            value={order.name}
-            onChange={(e) => onInputChange(e, "name")}
-            required
-            autoFocus
-          />
-          {submitted && !order.name && (
-            <small className="p-invalid">Name is required.</small>
-          )}
-        </div>
-        <div className="p-field">
-          <label htmlFor="description">Description</label>
-          <InputTextarea
-            id="description"
-            value={order.description}
-            onChange={(e) => onInputChange(e, "description")}
-            required
-            rows={3}
-            cols={20}
-          />
-        </div>
-
-        <div className="p-field">
-          <label className="p-mb-3">Category</label>
-          <div className="p-formgrid p-grid">
-            <div className="p-field-radiobutton p-col-6">
-              <RadioButton
-                inputId="category1"
-                name="category"
-                value="Accessories"
-                onChange={onCategoryChange}
-                checked={order.category === "Accessories"}
-              />
-              <label htmlFor="category1">Accessories</label>
-            </div>
-            <div className="p-field-radiobutton p-col-6">
-              <RadioButton
-                inputId="category2"
-                name="category"
-                value="Clothing"
-                onChange={onCategoryChange}
-                checked={order.category === "Clothing"}
-              />
-              <label htmlFor="category2">Clothing</label>
-            </div>
-            <div className="p-field-radiobutton p-col-6">
-              <RadioButton
-                inputId="category3"
-                name="category"
-                value="Electronics"
-                onChange={onCategoryChange}
-                checked={order.category === "Electronics"}
-              />
-              <label htmlFor="category3">Electronics</label>
-            </div>
-            <div className="p-field-radiobutton p-col-6">
-              <RadioButton
-                inputId="category4"
-                name="category"
-                value="Fitness"
-                onChange={onCategoryChange}
-                checked={order.category === "Fitness"}
-              />
-              <label htmlFor="category4">Fitness</label>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-formgrid p-grid">
-          <div className="p-field p-col">
-            <label htmlFor="price">Price</label>
-            <InputNumber
-              id="price"
-              value={order.price}
-              onValueChange={(e) => onInputNumberChange(e, "price")}
-              mode="currency"
-              currency="USD"
-              locale="en-US"
-            />
-          </div>
-          <div className="p-field p-col">
-            <label htmlFor="quantity">Quantity</label>
-            <InputNumber
-              id="quantity"
-              value={order.quantity}
-              onValueChange={(e) => onInputNumberChange(e, "quantity")}
-              integeronly
-            />
-          </div>
-        </div>
+        <OrderDetailsView order={order}></OrderDetailsView>
       </Dialog>
 
       <Dialog

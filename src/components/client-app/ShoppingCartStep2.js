@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import CartItem from "../base/CartItem";
 import ShoppingCartContext from "./contexts/ShoppingCartContext";
-import { setCartProducts } from "../../utils/util";
+import { setCartProducts_LS } from "../../utils/util";
 
 const Total = styled.div`
   display: flex;
@@ -31,7 +31,7 @@ const ShoppingCartStep2 = ({ updatePrice }) => {
     let newState = { ...cartState };
     newState.orderDetails.products[productId] = quantity;
     setCartState(newState);
-    setCartProducts(newState.orderDetails.products);
+    setCartProducts_LS(newState.orderDetails.products);
     updatePrice();
   };
 
@@ -43,7 +43,7 @@ const ShoppingCartStep2 = ({ updatePrice }) => {
     newState.cartItems.splice(index, 1);
     delete newState.orderDetails.products[productId];
     setCartState(newState);
-    setCartProducts(newState.orderDetails.products);
+    setCartProducts_LS(newState.orderDetails.products);
     updatePrice();
   };
 
