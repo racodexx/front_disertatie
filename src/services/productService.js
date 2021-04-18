@@ -22,10 +22,10 @@ export const editProduct = async (product) => {
   return result.data;
 };
 
-export const deleteProduct = async (poductId) => {
-  let result = await axios.post(baseURL + "/delete/?productId=" + poductId);
-  return result.data;
-};
+// export const deleteProduct = async (poductId) => {
+//   let result = await axios.post(baseURL + "/delete/?productId=" + poductId);
+//   return result.data;
+// };
 
 export const deleteProducts = async (poductIds) => {
   let result = await axios.post(baseURL + "/delete", { poductIds });

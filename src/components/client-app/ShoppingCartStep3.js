@@ -8,6 +8,7 @@ import { RadioButton } from "primereact/radiobutton";
 import PaymentType from "../../utils/enums/PaymentType";
 import PaymentButton from "./PaymentButton";
 import { addOrder } from "../../services/orderService";
+import { formatPrice } from "../../utils/util";
 
 import ShoppingCartContext from "./contexts/ShoppingCartContext";
 
@@ -63,7 +64,7 @@ const SummaryItem = ({ name, quantity, price }) => {
   return (
     <div className="summary-item">
       <div className="product">{quantity + " X " + name}</div>
-      <div className="price">{price}</div>
+      <div className="price">{formatPrice(price)}</div>
     </div>
   );
 };
@@ -125,7 +126,9 @@ export default function ShoppingCartStep3({
         {cartState.orderDetails.deliveryCost ? (
           <div className="summary-item ">
             <div className="product">Delivery fee</div>
-            <div className="price">{cartState.orderDetails.deliveryCost}</div>
+            <div className="price">
+              {formatPrice(cartState.orderDetails.deliveryCost)}
+            </div>
           </div>
         ) : (
           ""
@@ -133,8 +136,10 @@ export default function ShoppingCartStep3({
         <div className="p-d-flex p-jc-between totals">
           <div>Total value</div>
           <div>
-            {cartState.orderDetails.totalPrice +
-              cartState.orderDetails.deliveryCost}
+            {formatPrice(
+              cartState.orderDetails.totalPrice +
+                cartState.orderDetails.deliveryCost
+            )}
           </div>
         </div>
       </SummaryWrapper>
@@ -170,7 +175,14 @@ export default function ShoppingCartStep3({
           </Elements>
         )}
         {cartState.orderDetails.paymentType === PaymentType.Cash && (
-          <PaymentButton onClick={saveOrder}>Finalize order</PaymentButton>
+          <PaymentButton
+            onClick={() => {
+              saveOrder();
+              setPaymentFinalized();
+            }}
+          >
+            Finalize order
+          </PaymentButton>
         )}
       </PaymentMethodWrapper>
     </PageStyle>

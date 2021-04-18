@@ -188,9 +188,9 @@ const ShoppingCartStep1 = ({ fieldErrors, setFieldErrors }) => {
               id="others"
               rows={5}
               cols={30}
-              value={orderDetails.details}
+              value={orderDetails.description}
               onChange={(e) => {
-                setOrderDetails("details", e.target.value);
+                setOrderDetails("description", e.target.value);
               }}
               style={{ width: "100%" }}
             />

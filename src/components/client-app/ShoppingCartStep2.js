@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import CartItem from "../base/CartItem";
 import ShoppingCartContext from "./contexts/ShoppingCartContext";
-import { setCartProducts_LS } from "../../utils/util";
+import { setCartProducts_LS, formatPrice } from "../../utils/util";
 
 const Total = styled.div`
   display: flex;
@@ -82,14 +82,17 @@ const ShoppingCartStep2 = ({ updatePrice }) => {
         <h1>Total</h1>
         <div className="right-side">
           <h3 style={{ marginBottom: "unset" }}>
-            {cartState.orderDetails.totalPrice}
+            {formatPrice(cartState.orderDetails.totalPrice)}
           </h3>
           <div className="transport">
             {cartState.orderDetails.deliveryCost ? (
               <>
-                <h3>{`+${cartState.orderDetails.deliveryCost} delivery fee`}</h3>
+                <h3>{`+${formatPrice(
+                  cartState.orderDetails.deliveryCost
+                )} delivery fee`}</h3>
                 <strong className="free">
-                  *free delivery for orders over {cartState.freeDeliveryLimit}
+                  *free delivery for orders over{" "}
+                  {formatPrice(cartState.freeDeliveryLimit)}
                 </strong>
                 )
               </>
@@ -101,8 +104,10 @@ const ShoppingCartStep2 = ({ updatePrice }) => {
           </div>
           <h1>
             {"=" +
-              (cartState.orderDetails.totalPrice +
-                cartState.orderDetails.deliveryCost)}
+              formatPrice(
+                cartState.orderDetails.totalPrice +
+                  cartState.orderDetails.deliveryCost
+              )}
           </h1>
         </div>
       </Total>

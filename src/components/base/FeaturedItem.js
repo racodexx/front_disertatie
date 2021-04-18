@@ -4,7 +4,7 @@ import React from "react";
 import styled from "styled-components";
 
 import ProductAvailabilityItem from "../base/ProductAvailabilityItem";
-import { image } from "../../utils/util";
+import { image, formatPrice } from "../../utils/util";
 
 const Wrapper = styled.div`
   width: 95%;
@@ -50,7 +50,7 @@ const FeaturedItem = ({ product, addToCart }) => {
           <RatingWrapper>
             <Rating value={5} readOnly stars={5} cancel={false} />
           </RatingWrapper>
-          <h3 className="p-mt-0 p-mb-3">${product.price}</h3>
+          <h3 className="p-mt-0 p-mb-3">{formatPrice(product.price)}</h3>
           <p>{product.description}</p>
           <ProductAvailabilityItem
             availabilityStatusId={product.availabilityStatusId}

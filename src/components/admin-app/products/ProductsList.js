@@ -10,7 +10,6 @@ import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { FileUpload } from "primereact/fileupload";
-import { Rating } from "primereact/rating";
 import { Toolbar } from "primereact/toolbar";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
@@ -272,10 +271,6 @@ const ProductsList = () => {
     return <strong style={{ color: item.color }}>{item.name}</strong>;
   };
 
-  const ratingBodyTemplate = (rowData) => {
-    return <Rating value={rowData.rating} readOnly stars={5} cancel={false} />;
-  };
-
   const actionBodyTemplate = (rowData) => {
     return (
       <React.Fragment>
@@ -420,14 +415,14 @@ const ProductsList = () => {
             selectionMode="multiple"
             headerStyle={{ width: "3rem" }}
           ></Column>
-          <Column field="_id" header="Id" sortable></Column>
-          <Column field="name" header="Name" sortable></Column>
           <Column
             field="picture"
             header="Picture"
             body={pictureBodyTemplate}
             sortable
           ></Column>
+          <Column field="_id" header="Id" sortable></Column>
+          <Column field="name" header="Name" sortable></Column>
           <Column
             field="price"
             header="Price"
@@ -438,12 +433,6 @@ const ProductsList = () => {
             field="availabilityStatusId"
             header="Availability"
             body={availabilityBodyTemplate}
-            sortable
-          ></Column>
-          <Column
-            field="rating"
-            header="Rating"
-            body={ratingBodyTemplate}
             sortable
           ></Column>
           <Column body={actionBodyTemplate}></Column>

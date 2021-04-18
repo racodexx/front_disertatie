@@ -61,6 +61,13 @@ const getUserOrderDetails_LS = (userDetails) => {
   return {};
 };
 
+const formatPrice = (value) => {
+  return value.toLocaleString("ro-RO", {
+    style: "currency",
+    currency: "RON",
+  });
+};
+
 export {
   image,
   handleApiActionResult,
@@ -70,4 +77,5 @@ export {
   removeProductFromCart_LS,
   saveUserOrderDetails_LS,
   getUserOrderDetails_LS,
+  formatPrice,
 };

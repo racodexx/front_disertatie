@@ -7,9 +7,14 @@ import DrinkCategory from "./enums/DrinkCategory";
 const OrderStatusSelection = [
   { id: OrderStatus.Pending, name: "Pending", color: "red" },
   { id: OrderStatus.Preparing, name: "Preparing", color: "orange" },
-  { id: OrderStatus.ToBeDelivered, name: "To be delivered", color: "orange" },
-  { id: OrderStatus.Delivering, name: "Delivering", color: "orange" },
+  {
+    id: OrderStatus.ToBeDelivered,
+    name: "To be delivered",
+    color: "greenyellow",
+  },
+  { id: OrderStatus.Delivering, name: "Delivering", color: "turquoise" },
   { id: OrderStatus.Finalized, name: "Finalized", color: "green" },
+  { id: OrderStatus.Rejected, name: "Rejected", color: "black" },
 ];
 
 const ProductAvailabilityStatusSelection = [

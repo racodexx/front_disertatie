@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import PaymentType from "../../../utils/enums/PaymentType";
+import { formatPrice } from "../../../utils/util";
+
 const OrderDetailsWrapper = styled.div`
   .contact-details {
     background-color: aliceblue;
@@ -32,6 +34,7 @@ const OrderDetailsView = ({ order }) => {
       </div>
     );
   });
+
   return (
     <OrderDetailsWrapper>
       <div className="p-grid">
@@ -56,7 +59,7 @@ const OrderDetailsView = ({ order }) => {
           </div>
           <div className="p-grid">
             <label className="p-col-4">Price</label>
-            <div className="p-col-8 value">{order.price}</div>
+            <div className="p-col-8 value">{formatPrice(order.price)}</div>
           </div>
           <div className="p-grid">
             <label className="p-col-4">Payment type</label>
@@ -99,6 +102,10 @@ const OrderDetailsView = ({ order }) => {
           <label className="p-col-2">Quantity</label>
         </div>
         {products}
+      </div>
+      <div className="other-details">
+        <h3>Other order details</h3>
+        <p>{order.description}</p>
       </div>
     </OrderDetailsWrapper>
   );

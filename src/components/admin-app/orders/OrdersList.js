@@ -11,18 +11,26 @@ import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { FileUpload } from "primereact/fileupload";
-// import { Rating } from "primereact/rating";
 import { Toolbar } from "primereact/toolbar";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
-// import { InputTextarea } from "primereact/inputtextarea";
-// import { RadioButton } from "primereact/radiobutton";
-// import { InputNumber } from "primereact/inputnumber";
+import { Dropdown } from "primereact/dropdown";
 
-import { getOrders } from "../../../services/orderService";
+import {
+  getOrders,
+  deleteOrders,
+  updateOrder,
+} from "../../../services/orderService";
 import OrderStatus from "../../../utils/enums/OrderStatus";
 import OrderDetailsView from "./OrderDetailsView";
-// import OrderStatusSelection from "../../../utils/dataSelections";
+import { formatPrice, handleApiActionResult } from "../../../utils/util";
+import { OrderStatusSelection } from "../../../utils/dataSelections";
+
+const StatusEditIcon = styled.i`
+  cursor: pointer;
+  color: #061e38;
+  margin-left: 8px;
+`;
 
 const OrdersList = () => {
   let emptyOrder = {
@@ -33,8 +41,7 @@ const OrdersList = () => {
     category: null,
     price: 0,
     quantity: 0,
-    rating: 0,
-    inventoryStatus: "INSTOCK",
+    statusId: OrderStatus.Pending,
   };
 
   const CONTENT_HEIGHT = window.innerHeight;
@@ -43,11 +50,12 @@ const OrdersList = () => {
   const [orderDialog, setOrderDialog] = useState(false);
   const [deleteOrderDialog, setDeleteOrderDialog] = useState(false);
   const [deleteOrdersDialog, setDeleteOrdersDialog] = useState(false);
-  const [order, setOrder] = useState(emptyOrder);
+  const [updateStatusDialog, setUpdateStatusDialog] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(emptyOrder);
   const [selectedOrders, setSelectedOrders] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
-  const toast = useRef(null);
+  const toastRef = useRef(null);
   const dt = useRef(null);
 
   useEffect(() => {
@@ -71,15 +79,8 @@ const OrdersList = () => {
     }
   };
 
-  const formatCurrency = (value) => {
-    return value.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-  };
-
   const openNew = () => {
-    setOrder(emptyOrder);
+    setSelectedOrder(emptyOrder);
     setSubmitted(false);
     setOrderDialog(true);
   };
@@ -93,43 +94,47 @@ const OrdersList = () => {
     setDeleteOrderDialog(false);
   };
 
-  const hideDeleteOrderssDialog = () => {
+  const hideDeleteOrdersDialog = () => {
     setDeleteOrdersDialog(false);
   };
 
+  const hideUpdateStatusDialog = () => {
+    setUpdateStatusDialog(false);
+  };
+
   const onCategoryChange = (e) => {
-    let _order = { ...order };
+    let _order = { ...selectedOrder };
     _order["category"] = e.value;
-    setOrder(_order);
+    setSelectedOrder(_order);
   };
 
   const onInputChange = (e, name) => {
     const val = (e.target && e.target.value) || "";
-    let _order = { ...order };
+    let _order = { ...selectedOrder };
     _order[`${name}`] = val;
 
-    setOrder(_order);
+    setSelectedOrder(_order);
   };
 
   const onInputNumberChange = (e, name) => {
     const val = e.value || 0;
-    let _order = { ...order };
+    let _order = { ...selectedOrder };
     _order[`${name}`] = val;
 
-    setOrder(_order);
+    setSelectedOrder(_order);
   };
 
   const saveOrder = () => {
     setSubmitted(true);
 
-    if (order.name.trim()) {
+    if (selectedOrder.name.trim()) {
       let _orders = [...orders];
-      let _order = { ...order };
-      if (order.id) {
-        const index = findIndexById(order.id);
+      let _order = { ...selectedOrder };
+      if (selectedOrder.id) {
+        const index = findIndexById(selectedOrder.id);
 
         _orders[index] = _order;
-        toast.current.show({
+        toastRef.current.show({
           severity: "success",
           summary: "Successful",
           detail: "Order Updated",
@@ -138,7 +143,7 @@ const OrdersList = () => {
       } else {
         _order.id = createId();
         _orders.push(_order);
-        toast.current.show({
+        toastRef.current.show({
           severity: "success",
           summary: "Successful",
           detail: "Order Created",
@@ -148,32 +153,36 @@ const OrdersList = () => {
 
       setOrders(_orders);
       setOrderDialog(false);
-      setOrder(emptyOrder);
+      setSelectedOrder(emptyOrder);
     }
   };
 
   const showOrderdetails = (order) => {
-    setOrder({ ...order });
-    console.log(order);
+    setSelectedOrder({ ...order });
     setOrderDialog(true);
   };
 
+  const updateOrderStatus = (order) => {
+    setSelectedOrder({ ...order });
+    setUpdateStatusDialog(true);
+  };
+
   const confirmDeleteOrder = (order) => {
-    setOrder(order);
+    setSelectedOrder(order);
     setDeleteOrderDialog(true);
   };
 
-  const deleteOrder = () => {
-    let _orders = orders.filter((val) => val.id !== order.id);
-    setOrder(_orders);
+  const deleteOrder = async () => {
+    let result = await deleteOrders([selectedOrder._id]);
+    let data = handleApiActionResult(result, toastRef);
+    if (!data) {
+      return;
+    }
+
+    let _orders = orders.filter((val) => val._id !== selectedOrder._id);
+    setOrders(_orders);
     setDeleteOrderDialog(false);
-    setOrder(emptyOrder);
-    toast.current.show({
-      severity: "success",
-      summary: "Successful",
-      detail: "Order Deleted",
-      life: 3000,
-    });
+    setSelectedOrder(emptyOrder);
   };
 
   const findIndexById = (id) => {
@@ -206,17 +215,46 @@ const OrdersList = () => {
     setDeleteOrdersDialog(true);
   };
 
-  const deleteSelectedOrders = () => {
+  const deleteSelectedOrders = async () => {
+    let result = await deleteOrders(selectedOrders.map((x) => x._id));
+    let data = handleApiActionResult(result, toastRef);
+    if (!data) {
+      return;
+    }
+
     let _orders = orders.filter((val) => !selectedOrders.includes(val));
     setOrders(_orders);
     setDeleteOrdersDialog(false);
     setSelectedOrders(null);
-    toast.current.show({
-      severity: "success",
-      summary: "Successful",
-      detail: "Orders Deleted",
-      life: 3000,
+  };
+
+  const updateStatusId = async () => {
+    let result = await updateOrder({
+      id: selectedOrder._id,
+      statusId: selectedOrder.statusId,
     });
+    let data = handleApiActionResult(result, toastRef);
+    if (!data) {
+      return;
+    }
+
+    let newOrders = [...orders];
+    let updatedOrder = newOrders.find((x) => x._id === selectedOrder._id);
+    updatedOrder.statusId = selectedOrder.statusId;
+    setUpdateStatusDialog(false);
+    setSelectedOrder(emptyOrder);
+  };
+
+  const statusOptionTemplate = (option) => {
+    return (
+      <div style={{ color: option.color, fontWeight: 500 }}>{option.name}</div>
+    );
+  };
+
+  const onStatusChange = (e) => {
+    let newState = { ...selectedOrder };
+    newState.statusId = e.value;
+    setSelectedOrder(newState);
   };
 
   const leftToolbarTemplate = () => {
@@ -261,7 +299,7 @@ const OrdersList = () => {
   };
 
   const priceBodyTemplate = (rowData) => {
-    return formatCurrency(rowData.price);
+    return formatPrice(rowData.price);
   };
 
   const summaryBodyTemplate = (rowData) => {
@@ -275,26 +313,22 @@ const OrdersList = () => {
   };
 
   const statusBodyTemplate = (rowData) => {
-    let statusName = "";
-    let color = "";
-    switch (rowData.statusId) {
-      case OrderStatus.Pending:
-        statusName = "In pending";
-        color = "red";
-        break;
-      case OrderStatus.InProgress:
-        statusName = "In progress";
-        color = "orange";
-        break;
-      case OrderStatus.Finalized:
-        statusName = "Finalized";
-        color = "green";
-        break;
-      default:
-        statusName = "Error";
-        break;
-    }
-    return <strong style={{ color }}>{statusName}</strong>;
+    let currentStatus = OrderStatusSelection.find(
+      (x) => x.id === rowData.statusId
+    );
+    return (
+      <div>
+        <span style={{ color: currentStatus.color, fontWeight: 500 }}>
+          {currentStatus.name}
+        </span>
+        <StatusEditIcon
+          className="pi pi-pencil"
+          onClick={() => {
+            updateOrderStatus(rowData);
+          }}
+        />
+      </div>
+    );
   };
 
   const actionBodyTemplate = (rowData) => {
@@ -365,7 +399,7 @@ const OrdersList = () => {
         label="No"
         icon="pi pi-times"
         className="p-button-text"
-        onClick={hideDeleteOrderssDialog}
+        onClick={hideDeleteOrdersDialog}
       />
       <Button
         label="Yes"
@@ -376,9 +410,26 @@ const OrdersList = () => {
     </React.Fragment>
   );
 
+  const updateStatusDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        className="p-button-text"
+        onClick={hideUpdateStatusDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        className="p-button-text"
+        onClick={updateStatusId}
+      />
+    </React.Fragment>
+  );
+
   return (
     <div className="datatable-crud-demo">
-      <Toast ref={toast} />
+      <Toast ref={toastRef} />
 
       <div className="card">
         <Toolbar
@@ -392,7 +443,7 @@ const OrdersList = () => {
           value={orders}
           selection={selectedOrders}
           onSelectionChange={(e) => setSelectedOrders(e.value)}
-          dataKey="id"
+          dataKey="_id"
           paginator
           rows={10}
           rowsPerPageOptions={[5, 10, 25]}
@@ -447,7 +498,7 @@ const OrdersList = () => {
         footer={orderDialogFooter}
         onHide={hideDialog}
       >
-        <OrderDetailsView order={order}></OrderDetailsView>
+        <OrderDetailsView order={selectedOrder}></OrderDetailsView>
       </Dialog>
 
       <Dialog
@@ -463,9 +514,9 @@ const OrdersList = () => {
             className="pi pi-exclamation-triangle p-mr-3"
             style={{ fontSize: "2rem" }}
           />
-          {order && (
+          {selectedOrder && (
             <span>
-              Are you sure you want to delete <b>{order.name}</b>?
+              Are you sure you want to delete <b>{selectedOrder.name}</b>?
             </span>
           )}
         </div>
@@ -477,16 +528,41 @@ const OrdersList = () => {
         header="Confirm"
         modal
         footer={deleteOrdersDialogFooter}
-        onHide={hideDeleteOrderssDialog}
+        onHide={hideDeleteOrdersDialog}
       >
         <div className="confirmation-content">
           <i
             className="pi pi-exclamation-triangle p-mr-3"
             style={{ fontSize: "2rem" }}
           />
-          {order && (
+          {selectedOrder && (
             <span>Are you sure you want to delete the selected products?</span>
           )}
+        </div>
+      </Dialog>
+      <Dialog
+        visible={updateStatusDialog}
+        style={{ width: "350px" }}
+        contentStyle={{ height: "300px" }}
+        header="Update order"
+        modal
+        footer={updateStatusDialogFooter}
+        onHide={hideUpdateStatusDialog}
+      >
+        <div className="p-grid p-ai-center">
+          <label className="p-col-4">Order status</label>
+          <div className="p-col-8">
+            <Dropdown
+              value={selectedOrder.statusId}
+              options={OrderStatusSelection}
+              onChange={onStatusChange}
+              optionValue="id"
+              optionLabel="name"
+              placeholder="Select a status"
+              valueTemplate={statusOptionTemplate}
+              itemTemplate={statusOptionTemplate}
+            />
+          </div>
         </div>
       </Dialog>
     </div>

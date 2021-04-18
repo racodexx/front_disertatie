@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { image } from "../../utils/util";
+import { image, formatPrice } from "../../utils/util";
 
 const Wrapper = styled.div`
   @media only screen and (max-width: 900px) {
@@ -94,7 +94,7 @@ const CartItem = ({ product, quantity, setQuantity, removeItem }) => {
         </div>
       </div>
       <div className="p-col-4 p-lg-2 p-md-3 price">
-        <h3>{product.price}</h3>
+        <h3>{formatPrice(product.price)}</h3>
       </div>
     </Wrapper>
   );
