@@ -1,5 +1,5 @@
 const PaymentType = {
-  Card: 0,
-  Cash: 1,
+  Card: 1,
+  Cash: 2,
 };
 export default PaymentType;

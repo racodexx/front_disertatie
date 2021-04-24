@@ -1,9 +1,9 @@
 const OrderStatus = {
-  Pending: 0,
-  Preparing: 1,
-  ToBeDelivered: 2,
-  Delivering: 3,
-  Finalized: 4,
-  Rejected: 5,
+  Pending: 1,
+  Preparing: 2,
+  ToBeDelivered: 3,
+  Delivering: 4,
+  Finalized: 5,
+  Rejected: 6,
 };
 export default OrderStatus;

@@ -10,11 +10,12 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
-import { FileUpload } from "primereact/fileupload";
 import { Toolbar } from "primereact/toolbar";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
+import { MultiSelect } from "primereact/multiselect";
+import { Calendar } from "primereact/calendar";
 
 import {
   getOrders,
@@ -33,6 +34,7 @@ const StatusEditIcon = styled.i`
 `;
 
 const OrdersList = () => {
+  const filterVisibility_LS_KEY = "orders_list_filter_visibility";
   let emptyOrder = {
     id: null,
     name: "",
@@ -54,13 +56,42 @@ const OrdersList = () => {
   const [selectedOrder, setSelectedOrder] = useState(emptyOrder);
   const [selectedOrders, setSelectedOrders] = useState(null);
   const [submitted, setSubmitted] = useState(false);
-  const [globalFilter, setGlobalFilter] = useState(null);
   const toastRef = useRef(null);
   const dt = useRef(null);
 
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [columnFilterVisibility, setColumnFilterVisibility] = useState(false);
+  const [columnFilterValues, setColumnFilterValues] = useState({
+    _id: { value: "", matchMode: "contains" },
+    date: { value: null, matchMode: "contains" },
+    time: { value: null, matchMode: "contains" },
+    summary: { value: "", matchMode: "contains" },
+    phone: { value: null, matchMode: "contains" },
+    price: { value: null, matchMode: "contains" },
+    statusId: { value: "", matchMode: "in" },
+  });
+
   useEffect(() => {
+    loadFilterVisibility();
     loadOrders();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line
+
+  const loadFilterVisibility = () => {
+    let visibility = localStorage.getItem(filterVisibility_LS_KEY);
+    if (visibility) {
+      setColumnFilterVisibility(JSON.parse(visibility));
+    }
+  };
+
+  const getSummary = (order) => {
+    let summary = "";
+    if (order.products) {
+      for (let item of order.products) {
+        summary += item.quantity + "x" + item.product.name + " ";
+      }
+    }
+    return summary;
+  };
 
   const loadOrders = async () => {
     let result = await getOrders();
@@ -73,6 +104,7 @@ const OrdersList = () => {
         let time = moment(item.date).format("HH:mm ");
         order.date = date;
         order.time = time;
+        order.summary = getSummary(item);
         orders.push(order);
       }
       setOrders(orders);
@@ -257,6 +289,17 @@ const OrdersList = () => {
     setSelectedOrder(newState);
   };
 
+  const handleMoreFilters = () => {
+    localStorage.setItem(filterVisibility_LS_KEY, !columnFilterVisibility);
+    setColumnFilterVisibility(!columnFilterVisibility);
+  };
+
+  const onColumnFilterChange = (filterValue, field) => {
+    let columnFilters = { ...columnFilterValues };
+    columnFilters[field].value = filterValue;
+    setColumnFilterValues(columnFilters);
+  };
+
   const leftToolbarTemplate = () => {
     return (
       <React.Fragment>
@@ -280,19 +323,29 @@ const OrdersList = () => {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <FileUpload
-          mode="basic"
-          accept="image/*"
-          maxFileSize={1000000}
-          label="Import"
-          chooseLabel="Import"
-          className="p-mr-2 p-d-inline-block"
+        <div className="p-mr-5">
+          <span className="p-input-icon-left">
+            <i className="pi pi-search" />
+            <InputText
+              type="search"
+              onInput={(e) => setGlobalFilter(e.target.value)}
+              placeholder="Search..."
+            />
+          </span>
+        </div>
+        <Button
+          icon={`pi pi-filter` + (columnFilterVisibility ? "-slash" : "")}
+          className="p-button-info p-mr-2"
+          onClick={handleMoreFilters}
+          tooltipOptions={{ position: "left" }}
+          tooltip={"Filters"}
         />
         <Button
-          label="Export"
           icon="pi pi-upload"
           className="p-button-help"
           onClick={exportCSV}
+          tooltipOptions={{ position: "left" }}
+          tooltip={"Export"}
         />
       </React.Fragment>
     );
@@ -300,16 +353,6 @@ const OrdersList = () => {
 
   const priceBodyTemplate = (rowData) => {
     return formatPrice(rowData.price);
-  };
-
-  const summaryBodyTemplate = (rowData) => {
-    let summary = "";
-    if (rowData.products) {
-      for (let item of rowData.products) {
-        summary += item.quantity + "x" + item.product.name + " ";
-      }
-    }
-    return summary;
   };
 
   const statusBodyTemplate = (rowData) => {
@@ -348,35 +391,6 @@ const OrdersList = () => {
     );
   };
 
-  const header = (
-    <div className="table-header">
-      <h5 className="p-m-0">Manage Orders</h5>
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
-        <InputText
-          type="search"
-          onInput={(e) => setGlobalFilter(e.target.value)}
-          placeholder="Search..."
-        />
-      </span>
-    </div>
-  );
-  const orderDialogFooter = (
-    <React.Fragment>
-      <Button
-        label="Cancel"
-        icon="pi pi-times"
-        className="p-button-text"
-        onClick={hideDialog}
-      />
-      <Button
-        label="Save"
-        icon="pi pi-check"
-        className="p-button-text"
-        onClick={saveOrder}
-      />
-    </React.Fragment>
-  );
   const deleteOrderDialogFooter = (
     <React.Fragment>
       <Button
@@ -427,6 +441,69 @@ const OrdersList = () => {
     </React.Fragment>
   );
 
+  const renderFilter = (field, placeholder, options = false) => {
+    return options ? (
+      <MultiSelect
+        className={"p-dropdown p-column-filter"}
+        value={columnFilterValues[field].value}
+        selectedItemsLabel={"Items"}
+        options={options}
+        onChange={(e) => onColumnFilterChange(e.target.value, field)}
+        maxSelectedLabels={1}
+        showClear
+        placeholder={placeholder}
+        appendTo={document.body}
+        optionValue="id"
+        optionLabel="name"
+      />
+    ) : (
+      <InputText
+        type="search"
+        value={columnFilterValues[field].value}
+        onChange={(e) => onColumnFilterChange(e.target.value, field)}
+        placeholder={placeholder}
+      />
+    );
+  };
+
+  const renderDateFilter = (field) => {
+    let currentDate = "";
+    const currentValue = columnFilterValues[field].value;
+    if (currentValue) {
+      const day = parseInt(currentValue.substr(0, 2));
+      const month = parseInt(currentValue.substr(3, 2)) - 1;
+      const year = parseInt(currentValue.substr(6, 4));
+      currentDate = new Date(year, month, day);
+    }
+    return (
+      <Calendar
+        id="basic"
+        value={currentDate}
+        dateFormat={"d-mm-yy"}
+        onChange={(e) =>
+          onColumnFilterChange(
+            e.value ? moment(e.value).format("DD-MM-YYYY") : null,
+            field
+          )
+        }
+        appendTo={document.body}
+        placeholder="Select date"
+      />
+    );
+  };
+
+  const idFilter = renderFilter("_id", "Search by Id");
+  const dateFilter = renderDateFilter("date", "Search by date");
+  const timeFilter = renderFilter("time", ["Search by time"]);
+  const summaryFilter = renderFilter("summary", "Search by content");
+  const phoneFilter = renderFilter("phone", "Search by phone");
+  const priceFilter = renderFilter("price", "Search by price");
+  const statusIdFilter = renderFilter(
+    "statusId",
+    "Search by status",
+    OrderStatusSelection
+  );
+
   return (
     <div className="datatable-crud-demo">
       <Toast ref={toastRef} />
@@ -450,40 +527,68 @@ const OrdersList = () => {
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
           globalFilter={globalFilter}
-          header={header}
+          filters={columnFilterValues}
+          // header={header}
           scrollable
-          scrollHeight={`${CONTENT_HEIGHT - 355}px`}
+          scrollHeight={`${
+            CONTENT_HEIGHT - (columnFilterVisibility ? 342 : 270)
+          }px`}
         >
           <Column
             selectionMode="multiple"
             headerStyle={{ width: "3rem" }}
           ></Column>
-          <Column field="_id" header="Id" sortable></Column>
-          <Column field="date" header="Date" sortable></Column>
-          <Column field="time" header="Time" sortable></Column>
           <Column
-            field="products"
-            header="Summary"
-            body={summaryBodyTemplate}
+            field="_id"
+            header="Id"
             sortable
+            filter={columnFilterVisibility}
+            filterElement={idFilter}
+          ></Column>
+          <Column
+            field="date"
+            header="Date"
+            sortable
+            filter={columnFilterVisibility}
+            filterElement={dateFilter}
+          ></Column>
+          <Column
+            field="time"
+            header="Time"
+            sortable
+            filter={columnFilterVisibility}
+            filterElement={timeFilter}
+          ></Column>
+          <Column
+            field="summary"
+            header="Summary"
+            sortable
+            filterField="summary"
+            filter={columnFilterVisibility}
+            filterElement={summaryFilter}
           ></Column>
           <Column
             field="phone"
             header="Phone"
-            // body={statusBodyTemplate}
             sortable
+            filter={columnFilterVisibility}
+            filterElement={phoneFilter}
           ></Column>
           <Column
             field="price"
             header="Price"
             body={priceBodyTemplate}
             sortable
+            filter={columnFilterVisibility}
+            filterElement={priceFilter}
           ></Column>
           <Column
             field="statusId"
             header="Status"
             body={statusBodyTemplate}
             sortable
+            filter={columnFilterVisibility}
+            filterElement={statusIdFilter}
           ></Column>
           <Column body={actionBodyTemplate}></Column>
         </DataTable>
@@ -495,7 +600,6 @@ const OrdersList = () => {
         header="Order Details"
         modal
         className="p-fluid"
-        footer={orderDialogFooter}
         onHide={hideDialog}
       >
         <OrderDetailsView order={selectedOrder}></OrderDetailsView>

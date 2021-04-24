@@ -1,5 +1,4 @@
 import { Button } from "primereact/button";
-import { Rating } from "primereact/rating";
 import React from "react";
 import styled from "styled-components";
 
@@ -19,16 +18,18 @@ const Wrapper = styled.div`
     }
     .content-wrapper {
       text-align: center;
-      padding-bottom: 20px;
+      padding: 0px 10px 20px 10px;
+      .title {
+        font-size: 27px;
+        font-weight: 500;
+        margin-top: 10px;
+      }
+      .description {
+        height: 30px;
+      }
     }
     margin-bottom: 20px;
     margin-top: 20px;
-  }
-`;
-
-const RatingWrapper = styled.div`
-  .p-rating .p-rating-icon.pi-star {
-    color: #ffd700;
   }
 `;
 
@@ -46,12 +47,9 @@ const FeaturedItem = ({ product, addToCart }) => {
           <ItemImage src={image(product._id)} />
         </div>
         <div className="content-wrapper">
-          <h1 className="p-mb-1">{product.name}</h1>
-          <RatingWrapper>
-            <Rating value={5} readOnly stars={5} cancel={false} />
-          </RatingWrapper>
+          <div className="title">{product.name}</div>
           <h3 className="p-mt-0 p-mb-3">{formatPrice(product.price)}</h3>
-          <p>{product.description}</p>
+          <p className="description">{product.description}</p>
           <ProductAvailabilityItem
             availabilityStatusId={product.availabilityStatusId}
           />

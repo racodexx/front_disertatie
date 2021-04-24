@@ -1,7 +1,7 @@
 const ProductAvailabilityStatus = {
-  InStock: 0,
-  LimitedStock: 1,
-  SoonInStock: 2,
-  NoStock: 3,
+  Available: 1,
+  Limited: 2,
+  AvailableSoon: 3,
+  Unavailable: 4,
 };
 export default ProductAvailabilityStatus;

@@ -53,7 +53,7 @@ const saveUserOrderDetails_LS = (userDetails) => {
   localStorage.setItem("UserOrderData", JSON.stringify(userDetails));
 };
 
-const getUserOrderDetails_LS = (userDetails) => {
+const getUserOrderDetails_LS = () => {
   let data = localStorage.getItem("UserOrderData");
   if (data) {
     return JSON.parse(data);

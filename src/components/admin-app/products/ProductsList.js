@@ -4,12 +4,12 @@ import "primereact/resources/primereact.css";
 import "primeflex/primeflex.css";
 
 import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
+// import styled from "styled-components";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
-import { FileUpload } from "primereact/fileupload";
+// import { FileUpload } from "primereact/fileupload";
 import { Toolbar } from "primereact/toolbar";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
@@ -18,6 +18,7 @@ import { RadioButton } from "primereact/radiobutton";
 import { InputNumber } from "primereact/inputnumber";
 import { Dropdown } from "primereact/dropdown";
 import { Checkbox } from "primereact/checkbox";
+import { MultiSelect } from "primereact/multiselect";
 
 import {
   getProducts,
@@ -33,7 +34,7 @@ import {
   DrinkCategorySelection,
 } from "../../../utils/dataSelections";
 import ProductCategory from "../../../utils/enums/ProductCategory";
-import { image, handleApiActionResult } from "../../../utils/util";
+import { image, handleApiActionResult, formatPrice } from "../../../utils/util";
 
 const ProductDialogType = {
   None: 0,
@@ -42,6 +43,7 @@ const ProductDialogType = {
 };
 
 const ProductsList = () => {
+  const filterVisibility_LS_KEY = "products_list_filter_visibility";
   let emptyProduct = {
     id: "",
     name: "",
@@ -51,6 +53,7 @@ const ProductsList = () => {
     price: 0,
     availabilityStatusId: null,
     featured: false,
+    isVegetarian: false,
     image: null,
   };
 
@@ -63,26 +66,42 @@ const ProductsList = () => {
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [globalFilter, setGlobalFilter] = useState(null);
+
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [columnFilterVisibility, setColumnFilterVisibility] = useState(false);
+  const [columnFilterValues, setColumnFilterValues] = useState({
+    _id: { value: "", matchMode: "contains" },
+    name: { value: "", matchMode: "contains" },
+    categoryId: { value: null, matchMode: "in" },
+    price: { value: "", matchMode: "contains" },
+    availabilityStatusId: { value: null, matchMode: "in" },
+    featured: { value: "", matchMode: "in" },
+  });
   const toastRef = useRef(null);
   const dataTableRef = useRef(null);
 
   useEffect(() => {
+    loadFilterVisibility();
     loadProducts();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setProductState("isVegetarian", false);
+    //eslint-disable-next-line
+  }, [selectedProduct.categoryId]);
+
+  const loadFilterVisibility = () => {
+    let visibility = localStorage.getItem(filterVisibility_LS_KEY);
+    if (visibility) {
+      setColumnFilterVisibility(JSON.parse(visibility));
+    }
+  };
 
   const loadProducts = async () => {
     let result = await getProducts();
     if (result && result.data.length) {
       setProducts(result.data);
     }
-  };
-
-  const formatCurrency = (value) => {
-    return value.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
   };
 
   const openNew = () => {
@@ -215,6 +234,18 @@ const ProductsList = () => {
     setSelectedProducts(null);
   };
 
+  const handleMoreFilters = () => {
+    localStorage.setItem(filterVisibility_LS_KEY, !columnFilterVisibility);
+    setColumnFilterVisibility(!columnFilterVisibility);
+  };
+
+  const onColumnFilterChange = (event, field) => {
+    const filterValue = event.target.value;
+    let columnFilters = { ...columnFilterValues };
+    columnFilters[field].value = filterValue;
+    setColumnFilterValues(columnFilters);
+  };
+
   const leftToolbarTemplate = () => {
     return (
       <React.Fragment>
@@ -238,26 +269,43 @@ const ProductsList = () => {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <FileUpload
-          mode="basic"
-          accept="image/*"
-          maxFileSize={1000000}
-          label="Import"
-          chooseLabel="Import"
-          className="p-mr-2 p-d-inline-block"
+        <div className="p-mr-5">
+          <span className="p-input-icon-left">
+            <i className="pi pi-search" />
+            <InputText
+              type="search"
+              onInput={(e) => setGlobalFilter(e.target.value)}
+              placeholder="Search..."
+            />
+          </span>
+        </div>
+        <Button
+          icon={`pi pi-filter` + (columnFilterVisibility ? "-slash" : "")}
+          className="p-button-info p-mr-2"
+          onClick={handleMoreFilters}
+          tooltipOptions={{ position: "left" }}
+          tooltip={"Filters"}
         />
         <Button
-          label="Export"
           icon="pi pi-upload"
           className="p-button-help"
           onClick={exportCSV}
+          tooltipOptions={{ position: "left" }}
+          tooltip={"Export"}
         />
       </React.Fragment>
     );
   };
 
   const priceBodyTemplate = (rowData) => {
-    return formatCurrency(rowData.price);
+    return formatPrice(rowData.price);
+  };
+
+  const categoryBodyTemplate = (rowData) => {
+    let currentCategory = ProductCategorySelection.find(
+      (x) => x.id === rowData.categoryId
+    );
+    return currentCategory.name;
   };
 
   const pictureBodyTemplate = (rowData) => {
@@ -269,6 +317,10 @@ const ProductsList = () => {
       (x) => x.id === rowData.availabilityStatusId
     );
     return <strong style={{ color: item.color }}>{item.name}</strong>;
+  };
+
+  const featuredBodyTemplate = (rowData) => {
+    return rowData.featured ? "Yes" : "No";
   };
 
   const actionBodyTemplate = (rowData) => {
@@ -288,19 +340,6 @@ const ProductsList = () => {
     );
   };
 
-  const header = (
-    <div className="table-header">
-      <h5 className="p-m-0">Manage Products</h5>
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
-        <InputText
-          type="search"
-          onInput={(e) => setGlobalFilter(e.target.value)}
-          placeholder="Search..."
-        />
-      </span>
-    </div>
-  );
   const productDialogFooter = (
     <React.Fragment>
       <Button
@@ -349,6 +388,43 @@ const ProductsList = () => {
       />
     </React.Fragment>
   );
+
+  const renderFilter = (field, options = false) => {
+    return options ? (
+      <MultiSelect
+        className={"p-dropdown p-column-filter"}
+        value={columnFilterValues[field].value}
+        selectedItemsLabel={"Items"}
+        options={options}
+        onChange={(e) => onColumnFilterChange(e, field)}
+        maxSelectedLabels={1}
+        showClear
+        placeholder={"Select"}
+        appendTo={document.body}
+        optionValue="id"
+        optionLabel="name"
+      />
+    ) : (
+      <InputText
+        type="search"
+        onInput={(e) => onColumnFilterChange(e, field)}
+        placeholder="Search"
+      />
+    );
+  };
+
+  const idFilter = renderFilter("_id");
+  const nameFilter = renderFilter("name");
+  const priceFilter = renderFilter("price");
+  const categoryFilter = renderFilter("categoryId", ProductCategorySelection);
+  const availabilityFilter = renderFilter(
+    "availabilityStatusId",
+    ProductAvailabilityStatusSelection
+  );
+  const featuredFilter = renderFilter("featured", [
+    { id: true, name: "Yes" },
+    { id: false, name: "No" },
+  ]);
 
   const newProductCategories = ProductCategorySelection.map((x, index) => (
     <div className="p-field-radiobutton p-col-6" key={"category-" + index}>
@@ -407,9 +483,12 @@ const ProductsList = () => {
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
           globalFilter={globalFilter}
-          header={header}
+          filters={columnFilterValues}
+          // header={}
           scrollable
-          scrollHeight={`${CONTENT_HEIGHT - 355}px`}
+          scrollHeight={`${
+            CONTENT_HEIGHT - (columnFilterVisibility ? 342 : 270)
+          }px`}
         >
           <Column
             selectionMode="multiple"
@@ -421,19 +500,52 @@ const ProductsList = () => {
             body={pictureBodyTemplate}
             sortable
           ></Column>
-          <Column field="_id" header="Id" sortable></Column>
-          <Column field="name" header="Name" sortable></Column>
+          <Column
+            field="_id"
+            header="Id"
+            sortable
+            filter={columnFilterVisibility}
+            filterElement={idFilter}
+          ></Column>
+          <Column
+            field="name"
+            header="Name"
+            sortable
+            filter={columnFilterVisibility}
+            filterElement={nameFilter}
+          ></Column>
+
           <Column
             field="price"
             header="Price"
             body={priceBodyTemplate}
             sortable
+            filter={columnFilterVisibility}
+            filterElement={priceFilter}
+          ></Column>
+          <Column
+            field="categoryId"
+            header="Category"
+            body={categoryBodyTemplate}
+            sortable
+            filter={columnFilterVisibility}
+            filterElement={categoryFilter}
           ></Column>
           <Column
             field="availabilityStatusId"
             header="Availability"
             body={availabilityBodyTemplate}
             sortable
+            filter={columnFilterVisibility}
+            filterElement={availabilityFilter}
+          ></Column>
+          <Column
+            header="Featured"
+            field="featured"
+            body={featuredBodyTemplate}
+            sortable
+            filter={columnFilterVisibility}
+            filterElement={featuredFilter}
           ></Column>
           <Column body={actionBodyTemplate}></Column>
         </DataTable>
@@ -494,7 +606,7 @@ const ProductsList = () => {
             value={selectedProduct.price}
             onValueChange={(e) => onInputNumberChange(e, "price")}
             mode="currency"
-            currency="USD"
+            currency="RON"
             locale="en-US"
           />
         </div>
@@ -524,6 +636,18 @@ const ProductsList = () => {
           />
           <label htmlFor="featured">Featured</label>
         </div>
+        {selectedProduct.categoryId === ProductCategory.Food && (
+          <div className="p-field-checkbox">
+            <Checkbox
+              inputId="isVegetarian"
+              checked={selectedProduct.isVegetarian}
+              onChange={(e) => {
+                setProductState("isVegetarian", e.checked);
+              }}
+            />
+            <label htmlFor="isVegetarian">Is Vegetarian</label>
+          </div>
+        )}
 
         <div className="card">
           <h5>Pictures</h5>

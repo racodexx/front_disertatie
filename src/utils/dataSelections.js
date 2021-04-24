@@ -18,18 +18,26 @@ const OrderStatusSelection = [
 ];
 
 const ProductAvailabilityStatusSelection = [
-  { id: ProductAvailabilityStatus.InStock, name: "In stock", color: "green" },
   {
-    id: ProductAvailabilityStatus.LimitedStock,
-    name: "Limited stock",
+    id: ProductAvailabilityStatus.Available,
+    name: "Available",
+    color: "green",
+  },
+  {
+    id: ProductAvailabilityStatus.Limited,
+    name: "Limited",
     color: "orange",
   },
   {
-    id: ProductAvailabilityStatus.SoonInStock,
-    name: "In stock soon",
-    color: "yellow",
+    id: ProductAvailabilityStatus.AvailableSoon,
+    name: "Available soon",
+    color: "#8c8c2b",
   },
-  { id: ProductAvailabilityStatus.NoStock, name: "No stock", color: "red" },
+  {
+    id: ProductAvailabilityStatus.Unavailable,
+    name: "Unavailable",
+    color: "red",
+  },
 ];
 
 const ProductCategorySelection = [
@@ -39,18 +47,24 @@ const ProductCategorySelection = [
 
 const FoodCategorySelection = [
   { id: FoodCategory.Soup, name: "Soup" },
-  { id: FoodCategory.Salad, name: "Salad" },
   { id: FoodCategory.Pizza, name: "Pizza" },
   { id: FoodCategory.Pasta, name: "Pasta" },
-  { id: FoodCategory.Meat, name: "Meat" },
+  { id: FoodCategory.Salad, name: "Salad" },
+  { id: FoodCategory.MeatSpeciality, name: "Meat Speciality" },
+  { id: FoodCategory.VegetarianSpecality, name: "Vegetarian Speciality" },
+  { id: FoodCategory.Sauce, name: "Sauce" },
+  { id: FoodCategory.Other, name: "Other" },
 ];
 
 const DrinkCategorySelection = [
+  { id: DrinkCategory.Water, name: "Water" },
   { id: DrinkCategory.Soda, name: "Soda" },
   { id: DrinkCategory.NaturalJuice, name: "Natural Juice" },
-  { id: DrinkCategory.Cocktail, name: "Coctail" },
   { id: DrinkCategory.Beer, name: "Beer" },
-  { id: DrinkCategory.Alcohol, name: "Alcoholic drink" },
+  { id: DrinkCategory.Cocktail, name: "Cocktail" },
+  { id: DrinkCategory.StrongAlcohol, name: "Strong Alcohol" },
+  { id: DrinkCategory.EnergyDrink, name: "Energy Drink" },
+  { id: DrinkCategory.Other, name: "Other" },
 ];
 
 export {

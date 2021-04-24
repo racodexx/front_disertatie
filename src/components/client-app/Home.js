@@ -10,8 +10,10 @@ import pizza_background from "../../assets/images/pizza_background.jpg";
 import full_logo from "../../assets/images/full_logo_transparent.png";
 import interior from "../../assets/images/interior.jpg";
 import FoodCategory from "../../utils/enums/FoodCategory";
+import ProductCategory from "../../utils/enums/ProductCategory";
 
-import { addProductToCart_LS, formatPrice } from "../../utils/util";
+import { addProductToCart_LS } from "../../utils/util";
+
 const Wrapper = styled.div`
   /* position: relative; */
 `;
@@ -218,7 +220,25 @@ const Home = () => {
   };
 
   const pizzaItems = featuredProducts.filter(
-    (x) => x.subcategoryId === FoodCategory.Pizza
+    (x) =>
+      x.categoryId === ProductCategory.Food &&
+      x.subcategoryId === FoodCategory.Pizza
+  );
+
+  const soupItems = featuredProducts.filter(
+    (x) =>
+      x.categoryId === ProductCategory.Food &&
+      x.subcategoryId === FoodCategory.Soup
+  );
+
+  const pastaItems = featuredProducts.filter(
+    (x) =>
+      x.categoryId === ProductCategory.Food &&
+      x.subcategoryId === FoodCategory.Pasta
+  );
+
+  const drinkItems = featuredProducts.filter(
+    (x) => x.categoryId === ProductCategory.Drink
   );
 
   const responsiveOptions = [
@@ -294,13 +314,50 @@ const Home = () => {
             responsiveOptions={responsiveOptions}
             className="custom-carousel"
             circular
-            autoplayInterval={3000}
+            // autoplayInterval={3000}
             itemTemplate={productTemplate}
             // header={<h5>Check our Pizza</h5>}
           />
         </Section>
-        <Section title="Pasta"></Section>
-        <Section title="Drinks"></Section>
+        <Section title="Soup">
+          <Carousel
+            value={soupItems}
+            numVisible={4}
+            numScroll={1}
+            responsiveOptions={responsiveOptions}
+            className="custom-carousel"
+            circular
+            // autoplayInterval={3000}
+            itemTemplate={productTemplate}
+            // header={<h5>Check our Pizza</h5>}
+          />
+        </Section>
+        <Section title="Pasta">
+          <Carousel
+            value={pastaItems}
+            numVisible={4}
+            numScroll={1}
+            responsiveOptions={responsiveOptions}
+            className="custom-carousel"
+            circular
+            // autoplayInterval={3000}
+            itemTemplate={productTemplate}
+            // header={<h5>Check our Pizza</h5>}
+          />
+        </Section>
+        <Section title="Drinks">
+          <Carousel
+            value={drinkItems}
+            numVisible={4}
+            numScroll={1}
+            responsiveOptions={responsiveOptions}
+            className="custom-carousel"
+            circular
+            // autoplayInterval={3000}
+            itemTemplate={productTemplate}
+            // header={<h5>Check our Pizza</h5>}
+          />
+        </Section>
       </PageContent>
       <MenuInfoBanner>
         <div className="content">

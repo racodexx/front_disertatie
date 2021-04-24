@@ -1,5 +1,5 @@
 const ProductCategory = {
-  Drink: 0,
   Food: 1,
+  Drink: 2,
 };
 export default ProductCategory;
