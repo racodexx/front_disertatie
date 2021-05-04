@@ -46,6 +46,16 @@ const OrdersList = () => {
     statusId: OrderStatus.Pending,
   };
 
+  const defaultFilters = {
+    _id: { value: "", matchMode: "contains" },
+    date: { value: null, matchMode: "contains" },
+    time: { value: null, matchMode: "contains" },
+    summary: { value: "", matchMode: "contains" },
+    phone: { value: null, matchMode: "contains" },
+    price: { value: null, matchMode: "contains" },
+    statusId: { value: "", matchMode: "in" },
+  };
+
   const CONTENT_HEIGHT = window.innerHeight;
 
   const [orders, setOrders] = useState(null);
@@ -61,15 +71,7 @@ const OrdersList = () => {
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilterVisibility, setColumnFilterVisibility] = useState(false);
-  const [columnFilterValues, setColumnFilterValues] = useState({
-    _id: { value: "", matchMode: "contains" },
-    date: { value: null, matchMode: "contains" },
-    time: { value: null, matchMode: "contains" },
-    summary: { value: "", matchMode: "contains" },
-    phone: { value: null, matchMode: "contains" },
-    price: { value: null, matchMode: "contains" },
-    statusId: { value: "", matchMode: "in" },
-  });
+  const [columnFilterValues, setColumnFilterValues] = useState(defaultFilters);
 
   useEffect(() => {
     loadFilterVisibility();
@@ -294,6 +296,11 @@ const OrdersList = () => {
     setColumnFilterVisibility(!columnFilterVisibility);
   };
 
+  const resetFilters = () => {
+    setGlobalFilter("");
+    setColumnFilterValues(defaultFilters);
+  };
+
   const onColumnFilterChange = (filterValue, field) => {
     let columnFilters = { ...columnFilterValues };
     columnFilters[field].value = filterValue;
@@ -312,9 +319,15 @@ const OrdersList = () => {
         <Button
           label="Delete"
           icon="pi pi-trash"
-          className="p-button-danger"
+          className="p-button-danger p-mr-2"
           onClick={confirmDeleteSelected}
           disabled={!selectedOrders || !selectedOrders.length}
+        />
+        <Button
+          icon="pi pi-upload"
+          className="p-button-help"
+          onClick={exportCSV}
+          tooltip={"Export CSV"}
         />
       </React.Fragment>
     );
@@ -341,11 +354,11 @@ const OrdersList = () => {
           tooltip={"Filters"}
         />
         <Button
-          icon="pi pi-upload"
-          className="p-button-help"
-          onClick={exportCSV}
+          icon="pi pi-refresh"
+          className="p-button-secundary"
+          onClick={resetFilters}
           tooltipOptions={{ position: "left" }}
-          tooltip={"Export"}
+          tooltip={"Reset filters"}
         />
       </React.Fragment>
     );
@@ -500,7 +513,7 @@ const OrdersList = () => {
   const priceFilter = renderFilter("price", "Search by price");
   const statusIdFilter = renderFilter(
     "statusId",
-    "Search by status",
+    "Select status",
     OrderStatusSelection
   );
 

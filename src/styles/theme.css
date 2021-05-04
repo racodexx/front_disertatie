@@ -14,6 +14,11 @@
 .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
   background-color: #061e38;
 }
+.p-filter-column .p-multiselect,
+.p-filter-column .p-dropdown,
+.p-filter-column .p-inputtext {
+  width: 100% !important;
+}
 label {
   font-weight: 500;
 }

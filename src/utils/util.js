@@ -2,6 +2,17 @@ const image = (name) => {
   return `http://localhost:9000/?image=${name}.jpg`;
 };
 
+const showNotification = (severity, summary, detail, toastRef) => {
+  if (toastRef) {
+    toastRef.current.show({
+      severity: severity,
+      summary: summary.toUpperCase(),
+      detail: detail,
+      life: 3000,
+    });
+  }
+};
+
 const handleApiActionResult = (result, toastRef) => {
   if (toastRef) {
     toastRef.current.show({
@@ -25,10 +36,14 @@ const setCartProducts_LS = (products) => {
   localStorage.setItem("ShoppingCartProducts", JSON.stringify(products));
 };
 
-const addProductToCart_LS = (productId) => {
+const addProductToCart_LS = (productId, quantity) => {
   let data = localStorage.getItem("ShoppingCartProducts");
   let existingProducts = data ? JSON.parse(data) : {};
-  existingProducts[productId] = 1;
+  if (existingProducts[productId]) {
+    existingProducts[productId] += quantity;
+  } else {
+    existingProducts[productId] = quantity;
+  }
   localStorage.setItem(
     "ShoppingCartProducts",
     JSON.stringify(existingProducts)
@@ -78,4 +93,5 @@ export {
   saveUserOrderDetails_LS,
   getUserOrderDetails_LS,
   formatPrice,
+  showNotification,
 };

@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 
 import { Carousel } from "primereact/carousel";
+import { Toast } from "primereact/toast";
 
 import Section from "../base/Section";
 import FeaturedItem from "../base/FeaturedItem";
+import AddToCartDialog from "../base/AddToCartDialog";
 import { getProducts } from "../../services/productService";
 import pizza_background from "../../assets/images/pizza_background.jpg";
 import full_logo from "../../assets/images/full_logo_transparent.png";
 import interior from "../../assets/images/interior.jpg";
 import FoodCategory from "../../utils/enums/FoodCategory";
 import ProductCategory from "../../utils/enums/ProductCategory";
-
-import { addProductToCart_LS } from "../../utils/util";
+import { showNotification } from "../../utils/util";
 
 const Wrapper = styled.div`
   /* position: relative; */
@@ -208,7 +209,9 @@ const SectionTitle = () => {
 };
 
 const Home = () => {
+  const toastRef = useRef(null);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [addToCartProduct, setAddToCartProduct] = useState();
   useEffect(() => {
     getFeaturedProducts();
   }, []);
@@ -259,12 +262,24 @@ const Home = () => {
     },
   ];
 
+  const onCloseAddToCart = (hasAdded) => {
+    if (hasAdded) {
+      showNotification(
+        "success",
+        "Product(s) added to cart",
+        "Go to shopping cart to finalize the order",
+        toastRef
+      );
+    }
+    setAddToCartProduct(null);
+  };
+
   const productTemplate = (product) => {
     return (
       <FeaturedItem
         product={product}
         addToCart={() => {
-          addProductToCart_LS(product._id);
+          setAddToCartProduct(product);
         }}
       />
     );
@@ -272,6 +287,8 @@ const Home = () => {
 
   return (
     <Wrapper>
+      <Toast ref={toastRef} />
+      <AddToCartDialog product={addToCartProduct} onClose={onCloseAddToCart} />
       <HeadImage>
         <img className="background-img" src={pizza_background} alt="pizza" />
         <h1 className="centered">
