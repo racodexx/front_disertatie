@@ -7,6 +7,7 @@ import ShoppingCartContext from "./contexts/ShoppingCartContext";
 import ShoppingCartStep2 from "./ShoppingCartStep2";
 import ShoppingCartStep1 from "./ShoppingCartStep1";
 import ShoppingCartStep3 from "./ShoppingCartStep3";
+import AgreeTerms from "./AgreeTerms";
 import PaymentType from "../../utils/enums/PaymentType";
 
 import { getProducts } from "../../services/productService";
@@ -272,6 +273,7 @@ const ShoppingCart = () => {
 
   return (
     <PageWrapper>
+      <AgreeTerms />
       {step !== PaymentSteps.Finalized && (
         <>
           {cartState.cartItems.length ? (

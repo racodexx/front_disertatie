@@ -24,6 +24,7 @@ import {
   editProduct,
   uploadPicture,
   deleteProducts,
+  deletePictures,
 } from "../../../services/productService";
 import {
   ProductAvailabilityStatusSelection,
@@ -32,7 +33,12 @@ import {
   DrinkCategorySelection,
 } from "../../../utils/dataSelections";
 import ProductCategory from "../../../utils/enums/ProductCategory";
-import { image, handleApiActionResult, formatPrice } from "../../../utils/util";
+import {
+  image,
+  handleApiActionResult,
+  formatPrice,
+  showNotification,
+} from "../../../utils/util";
 
 const ProductDialogType = {
   None: 0,
@@ -171,10 +177,14 @@ const ProductsList = () => {
     if (!resultData) {
       return;
     }
-    if (selectedProduct.image) {
-      let formData = new FormData();
-      formData.append("picture", selectedProduct.image, resultData._id + "");
-      await uploadPicture(formData);
+    try {
+      if (selectedProduct.image) {
+        let formData = new FormData();
+        formData.append("picture", selectedProduct.image, resultData._id + "");
+        await uploadPicture(formData);
+      }
+    } catch (e) {
+      console.log(e);
     }
     let _products = [...products];
 
@@ -209,6 +219,12 @@ const ProductsList = () => {
       return;
     }
 
+    try {
+      await deletePictures([selectedProduct._id]);
+    } catch (e) {
+      console.log(e);
+    }
+
     let _products = products.filter((val) => val._id !== selectedProduct._id);
     setProducts(_products);
     setDeleteProductDialog(false);
@@ -229,6 +245,12 @@ const ProductsList = () => {
     if (!data) {
       return;
     }
+    try {
+      await deletePictures(selectedProducts.map((x) => x._id));
+    } catch (e) {
+      console.log(e);
+    }
+
     let _products = products.filter((val) => !selectedProducts.includes(val));
     setProducts(_products);
     setDeleteProductsDialog(false);
@@ -299,6 +321,7 @@ const ProductsList = () => {
               type="search"
               onInput={(e) => setGlobalFilter(e.target.value)}
               placeholder="Search..."
+              showClear
             />
           </span>
         </div>
@@ -461,6 +484,7 @@ const ProductsList = () => {
         value={columnFilterValues[field].value}
         onInput={(e) => onColumnFilterChange(e, field)}
         placeholder={placeholder}
+        showClear
       />
     );
   };

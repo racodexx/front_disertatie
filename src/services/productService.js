@@ -36,3 +36,8 @@ export const uploadPicture = async (formData) => {
   let result = await axios.post("http://localhost:9000/", formData);
   return result.data;
 };
+
+export const deletePictures = async (ids) => {
+  let result = await axios.delete("http://localhost:9000/", { data: { ids } });
+  return result.data;
+};

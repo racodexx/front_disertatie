@@ -19,13 +19,23 @@ const Wrapper = styled.div`
   /* position: relative; */
 `;
 const HeadImage = styled.div`
-  width: 100%;
-  position: relative;
-  text-align: center;
-
-  .background-img {
+  .desktop {
     width: 100%;
-    opacity: 0.45;
+    position: relative;
+    text-align: center;
+    .background-img {
+      /* width: 100%; */
+      opacity: 0.45;
+      @media only screen and (max-width: 1600px) {
+        width: 100%;
+      }
+    }
+    .centered {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
   .logo {
     background-color: white;
@@ -36,11 +46,15 @@ const HeadImage = styled.div`
     }
   }
 
-  .centered {
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  @media only screen and (max-width: 700px) {
+    .desktop {
+      display: none;
+    }
+  }
+  @media only screen and (min-width: 700px) {
+    .mobile {
+      display: none;
+    }
   }
 `;
 const PageContent = styled.div`
@@ -50,43 +64,11 @@ const PageContent = styled.div`
   margin: auto;
 `;
 
-const Introduction = styled.div`
-  @media only screen and (max-width: 1300px) {
-    display: inline-block;
-  }
-
-  height: 450px;
-  background-color: #fff;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  .description {
-    width: 400px;
-    margin-right: 70px;
-    .title {
-      margin-bottom: 30px;
-      color: #dfc15e;
-      font-family: "Ovo", Sans-serif;
-      font-size: 54px;
-      font-weight: 600;
-      letter-spacing: -2px;
-    }
-    .text {
-      color: #a3a3a3;
-      font-weight: 400;
-    }
-  }
-
-  img {
-    width: 450px;
-  }
-`;
-
 const AboutUsBanner = styled.div`
   background-color: #3a3a3a;
   width: 100%;
   text-align: center;
+  margin-top: -4px;
   .content {
     margin: auto;
     padding: 25px;
@@ -97,6 +79,9 @@ const AboutUsBanner = styled.div`
     color: #dfc15e;
     font-family: "Shadows Into Light", Sans-serif;
     font-size: 50px;
+    @media only screen and (max-width: 700px) {
+      font-size: 27px;
+    }
   }
   .text {
     color: #bababa;
@@ -143,7 +128,7 @@ const AboutRestaurantBanner = styled.div`
   text-align: center;
   .content {
     margin: auto;
-    padding: 100px 25px;
+    padding: 60px 25px;
     max-width: 700px;
     min-width: 300px;
     .title {
@@ -168,15 +153,20 @@ const ContactBanner = styled.div`
   color: white;
   .content {
     margin: auto;
-    padding: 100px 25px;
+    padding: 60px 25px;
     max-width: 700px;
     min-width: 300px;
     display: flex;
     justify-content: space-between;
+    @media only screen and (max-width: 700px) {
+      display: block;
+    }
     .card {
       text-align: left;
+      margin-bottom: 20px;
       .item {
         margin-bottom: 5px;
+        margin-left: 20px;
         color: #929292;
         font-size: 15px;
         font-weight: 500;
@@ -186,11 +176,6 @@ const ContactBanner = styled.div`
         padding-left: 10px;
         margin-bottom: 10px;
         margin-left: 5px;
-      }
-      .text {
-        /* color: #929292;
-        font-size: 15px;
-        font-weight: 500; */
       }
       i {
         margin-right: 10px;
@@ -211,7 +196,7 @@ const SectionTitle = () => {
 const Home = () => {
   const toastRef = useRef(null);
   const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [addToCartProduct, setAddToCartProduct] = useState();
+  const [selectedProduct, setSelectedProduct] = useState();
   useEffect(() => {
     getFeaturedProducts();
   }, []);
@@ -271,7 +256,7 @@ const Home = () => {
         toastRef
       );
     }
-    setAddToCartProduct(null);
+    setSelectedProduct(null);
   };
 
   const productTemplate = (product) => {
@@ -279,7 +264,7 @@ const Home = () => {
       <FeaturedItem
         product={product}
         addToCart={() => {
-          setAddToCartProduct(product);
+          setSelectedProduct(product);
         }}
       />
     );
@@ -288,27 +273,18 @@ const Home = () => {
   return (
     <Wrapper>
       <Toast ref={toastRef} />
-      <AddToCartDialog product={addToCartProduct} onClose={onCloseAddToCart} />
+      <AddToCartDialog product={selectedProduct} onClose={onCloseAddToCart} />
       <HeadImage>
-        <img className="background-img" src={pizza_background} alt="pizza" />
-        <h1 className="centered">
-          <img className="logo" src={full_logo} alt="logo" />
-        </h1>
-      </HeadImage>
-      <Introduction>
-        <div className="description">
-          <div className="title">About us</div>
-          <div className="text">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged.
-          </div>
+        <div className="desktop">
+          <img className="background-img" src={pizza_background} alt="pizza" />
+          <h1 className="centered">
+            <img className="logo" src={full_logo} alt="logo" />
+          </h1>
         </div>
-        <img src={interior} alt="interior" />
-      </Introduction>
+        <div className="mobile">
+          <img className="logo" src={full_logo} alt="logo" />
+        </div>
+      </HeadImage>
       <AboutUsBanner>
         <div className="content">
           <div className="title">

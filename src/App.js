@@ -16,6 +16,7 @@ import "primereact/resources/primereact.min.css";
 import "primeflex/primeflex.css";
 
 import "./styles/theme.css";
+
 const routes = [
   {
     path: "/admin/orders",
@@ -49,6 +50,7 @@ const routes = [
 
 const App = () => {
   const [appState, setAppState] = useState({});
+
   return (
     <AppContext.Provider value={{ appState, setAppState }}>
       <Router>

@@ -475,6 +475,7 @@ const OrdersList = () => {
         value={columnFilterValues[field].value}
         onChange={(e) => onColumnFilterChange(e.target.value, field)}
         placeholder={placeholder}
+        showClear
       />
     );
   };

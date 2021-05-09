@@ -16,18 +16,7 @@ const AddToCartDialog = ({ onClose, product }) => {
 
   const footer = (
     <React.Fragment>
-      <Button
-        label="No"
-        icon="pi pi-times"
-        className="p-button-text"
-        onClick={() => onClose(false)}
-      />
-      <Button
-        label="Yes"
-        icon="pi pi-check"
-        className="p-button-text"
-        onClick={addToCart}
-      />
+      <Button onClick={addToCart}>Add</Button>
     </React.Fragment>
   );
 
@@ -41,27 +30,31 @@ const AddToCartDialog = ({ onClose, product }) => {
       onHide={() => onClose(false)}
     >
       {product && (
-        <div className="p-d-flex p-jc-between p-ai-center">
-          <img src={image(product._id)} height="100" alt="product" />
-          <div>
-            <p>Name</p>
-            <h3>{product.name}</h3>
+        <>
+          <img src={image(product._id)} width="100%" alt="product" />
+          <div className="p-d-flex p-jc-between p-ai-center">
+            <div>
+              <p>Name</p>
+              <h3>{product.name}</h3>
+            </div>
+            <div>
+              <p>Price</p>
+              <h3>{formatPrice(product.price)}</h3>
+            </div>
+            <div>
+              <p style={{ marginBottom: "15px" }}>Quantity</p>
+              <InputNumber
+                value={quantity}
+                onValueChange={(e) => setQuantity(e.target.value)}
+                style={{ width: "60px", marginBottom: "8px" }}
+                min={1}
+                max={10}
+              />
+            </div>
           </div>
-          <div>
-            <p>Price</p>
-            <h3>{formatPrice(product.price)}</h3>
-          </div>
-          <div>
-            <p style={{ marginBottom: "15px" }}>Quantity</p>
-            <InputNumber
-              value={quantity}
-              onValueChange={(e) => setQuantity(e.target.value)}
-              style={{ width: "60px", marginBottom: "8px" }}
-              min={1}
-              max={10}
-            />
-          </div>
-        </div>
+          <p>Description</p>
+          <h4>{product.description}</h4>
+        </>
       )}
     </Dialog>
   );
