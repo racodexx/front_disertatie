@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import "./App.css";
 import { AppContext } from "./AppContext";
-import AdminOrdersPage from "./components/pages/AdminOrdersPage";
-import AdminProductsPage from "./components/pages/AdminProductsPage";
+import AdminOrdersPage from "./components/admin-app/pages/AdminOrdersPage";
+import AdminProductsPage from "./components/admin-app/pages/AdminProductsPage";
+import AdminFeedbacksPage from "./components/admin-app/pages/AdminFeedbacksPage";
 import AdminLogin from "./components/admin-app/AdminLogin";
 import HomePage from "./components/pages/HomePage";
 import MenuPage from "./components/pages/MenuPage";
-import AboutPage from "./components/pages/AboutPage";
+import ContactPage from "./components/pages/ContactPage";
 import ShoppingCartPage from "./components/pages/ShoppingCartPage";
 
 import "primeicons/primeicons.css";
@@ -19,6 +20,10 @@ import "./styles/theme.css";
 
 const routes = [
   {
+    path: "/admin/login",
+    component: AdminLogin,
+  },
+  {
     path: "/admin/orders",
     component: AdminOrdersPage,
   },
@@ -27,8 +32,8 @@ const routes = [
     component: AdminProductsPage,
   },
   {
-    path: "/admin/login",
-    component: AdminLogin,
+    path: "/admin/feedbacks",
+    component: AdminFeedbacksPage,
   },
   {
     path: "/client/home",
@@ -39,8 +44,8 @@ const routes = [
     component: MenuPage,
   },
   {
-    path: "/client/about",
-    component: AboutPage,
+    path: "/client/contact",
+    component: ContactPage,
   },
   {
     path: "/client/shopping-cart",

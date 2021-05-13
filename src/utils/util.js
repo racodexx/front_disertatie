@@ -13,7 +13,7 @@ const showNotification = (severity, summary, detail, toastRef) => {
   }
 };
 
-const handleApiActionResult = (result, toastRef) => {
+const handleApiActionResult = (result, toastRef = null) => {
   if (toastRef) {
     toastRef.current.show({
       severity: result.status,

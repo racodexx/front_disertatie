@@ -3,6 +3,7 @@ import ProductAvailabilityStatus from "./enums/ProductAvailabilityStatus";
 import ProductCategory from "./enums/ProductCategory";
 import FoodCategory from "./enums/FoodCategory";
 import DrinkCategory from "./enums/DrinkCategory";
+import FeedbackStatus from "./enums/FeedbackStatus";
 
 const OrderStatusSelection = [
   { id: OrderStatus.Pending, name: "Pending", color: "red" },
@@ -67,10 +68,17 @@ const DrinkCategorySelection = [
   { id: DrinkCategory.Other, name: "Other" },
 ];
 
+const FeedbackStatusSelection = [
+  { id: FeedbackStatus.Unread, name: "Unread", color: "red" },
+  { id: FeedbackStatus.Read, name: "Read", color: "orange" },
+  { id: FeedbackStatus.Replied, name: "Replied", color: "green" },
+];
+
 export {
   OrderStatusSelection,
   ProductAvailabilityStatusSelection,
   ProductCategorySelection,
   FoodCategorySelection,
   DrinkCategorySelection,
+  FeedbackStatusSelection,
 };

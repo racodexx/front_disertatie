@@ -1,11 +1,11 @@
 import React from "react";
 import ClientLayout from "../client-app/ClientLayout";
-import About from "../client-app/About";
-const AboutPage = () => {
+import Contact from "../client-app/Contact";
+const ContactPage = () => {
   return (
     <ClientLayout>
-      <About />
+      <Contact />
     </ClientLayout>
   );
 };
-export default AboutPage;
+export default ContactPage;

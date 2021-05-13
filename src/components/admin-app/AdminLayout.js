@@ -1,18 +1,11 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import styled from "styled-components";
 import { TabMenu } from "primereact/tabmenu";
-
-const TabMenuWrapper = styled.div`
-  /* .p-menuitem-link {
-    box-shadow: unset !important;
-  } */
-`;
 
 const MenuItems = {
   Orders: 1,
   Products: 2,
-  Settings: 3,
+  Feedbacks: 3,
 };
 
 const AdminLayout = (props) => {
@@ -22,16 +15,21 @@ const AdminLayout = (props) => {
     {
       id: MenuItems.Orders,
       label: "Orders",
-      icon: "pi pi-fw pi-home",
+      icon: "pi pi-fw pi-bell",
       href: "/admin/orders",
     },
     {
       id: MenuItems.Products,
       label: "Products",
-      icon: "pi pi-fw pi-calendar",
+      icon: "pi pi-fw pi-folder",
       href: "/admin/products",
     },
-    { id: MenuItems.Settings, label: "Settings", icon: "pi pi-fw pi-cog" },
+    {
+      id: MenuItems.Feedbacks,
+      label: "Feedbacks",
+      icon: "pi pi-fw pi-comments",
+      href: "/admin/feedbacks",
+    },
   ];
 
   const location = document.location.href.substring(
@@ -43,16 +41,14 @@ const AdminLayout = (props) => {
   return (
     <div>
       <div className="card">
-        <TabMenuWrapper>
-          <TabMenu
-            model={items}
-            activeItem={activeItem}
-            onTabChange={(e) => {
-              history.push(e.value.href);
-            }}
-          />
-          {props.children}
-        </TabMenuWrapper>
+        <TabMenu
+          model={items}
+          activeItem={activeItem}
+          onTabChange={(e) => {
+            history.push(e.value.href);
+          }}
+        />
+        {props.children}
       </div>
     </div>
   );

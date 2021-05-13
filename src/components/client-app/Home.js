@@ -7,10 +7,10 @@ import { Toast } from "primereact/toast";
 import Section from "../base/Section";
 import FeaturedItem from "../base/FeaturedItem";
 import AddToCartDialog from "../base/AddToCartDialog";
+import ContactBanner from "./ContactBanner";
 import { getProducts } from "../../services/productService";
 import pizza_background from "../../assets/images/pizza_background.jpg";
 import full_logo from "../../assets/images/full_logo_transparent.png";
-import interior from "../../assets/images/interior.jpg";
 import FoodCategory from "../../utils/enums/FoodCategory";
 import ProductCategory from "../../utils/enums/ProductCategory";
 import { showNotification } from "../../utils/util";
@@ -119,68 +119,6 @@ const MenuInfoBanner = styled.div`
       padding: 3px 10px 5px 10px;
       border-radius: 19px;
       margin: 20px;
-    }
-  }
-`;
-
-const AboutRestaurantBanner = styled.div`
-  width: 100%;
-  text-align: center;
-  .content {
-    margin: auto;
-    padding: 60px 25px;
-    max-width: 700px;
-    min-width: 300px;
-    .title {
-      color: #c17d0f;
-      font-size: 24px;
-      font-weight: 400;
-      letter-spacing: 2px;
-      margin-bottom: 20px;
-    }
-    .text {
-      color: #929292;
-      font-weight: 400;
-      font-size: 17px;
-      line-height: 1.6em;
-    }
-  }
-`;
-
-const ContactBanner = styled.div`
-  background-color: #2e3b42;
-  text-align: center;
-  color: white;
-  .content {
-    margin: auto;
-    padding: 60px 25px;
-    max-width: 700px;
-    min-width: 300px;
-    display: flex;
-    justify-content: space-between;
-    @media only screen and (max-width: 700px) {
-      display: block;
-    }
-    .card {
-      text-align: left;
-      margin-bottom: 20px;
-      .item {
-        margin-bottom: 5px;
-        margin-left: 20px;
-        color: #929292;
-        font-size: 15px;
-        font-weight: 500;
-      }
-      .title {
-        border-left: 5px solid darkorange;
-        padding-left: 10px;
-        margin-bottom: 10px;
-        margin-left: 5px;
-      }
-      i {
-        margin-right: 10px;
-        color: darkorange;
-      }
     }
   }
 `;
@@ -371,49 +309,7 @@ const Home = () => {
           </div>
         </div>
       </MenuInfoBanner>
-      <AboutRestaurantBanner>
-        <div className="content">
-          <div className="title">... about Racodex Restaurant</div>
-          <div className="text">
-            There are many variations of passages of Lorem Ipsum available, but
-            the majority have suffered alteration in some form, by injected
-            humour, or randomised words which don't look even slightly
-            believable.
-          </div>
-        </div>
-      </AboutRestaurantBanner>
-      <ContactBanner>
-        <div className="content">
-          <div className="card">
-            <div className="title">Location</div>
-            <div className="item">
-              <i className="pi pi-map-marker"></i>
-              <span className="text">Address: Curtea de Arges</span>
-            </div>
-            <div className="item">
-              <i className="pi pi-map"></i>
-              <span className="text">Street: Main Street</span>
-            </div>
-          </div>
-          <div className="card">
-            <div className="title">Contact details</div>
-            <div className="item">
-              <i className="pi pi-inbox"></i>
-              <span>Email: </span>
-              <a className="text" href="mailto: racodexx@gmail.com">
-                racodexx@gmail.com
-              </a>
-            </div>
-            <div className="item">
-              <i className="pi pi-phone"></i>
-              <span>Phone: </span>
-              <a className="text" href="tel: 0741234567">
-                0741234567
-              </a>
-            </div>
-          </div>
-        </div>
-      </ContactBanner>
+      <ContactBanner />
     </Wrapper>
   );
 };

@@ -66,7 +66,7 @@ const Navbar = () => {
       <RightSide>
         <NavActionItem name="home">Home</NavActionItem>
         <NavActionItem name="menu">Menu</NavActionItem>
-        <NavActionItem name="about">About</NavActionItem>
+        <NavActionItem name="contact">Contact</NavActionItem>
         <NavActionItem name="shopping-cart">
           <i className="pi pi-shopping-cart"></i>
         </NavActionItem>

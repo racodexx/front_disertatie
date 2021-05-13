@@ -1,10 +1,10 @@
 import React from "react";
-import AdminLayout from "../admin-app/AdminLayout";
-import ProductsList from "../admin-app/products/ProductsList";
+import AdminLayout from "../AdminLayout";
+import FeedbacksList from "../feedbacks/FeedbacksList";
 const AdminOrders = () => {
   return (
     <AdminLayout>
-      <ProductsList />
+      <FeedbacksList />
     </AdminLayout>
   );
 };

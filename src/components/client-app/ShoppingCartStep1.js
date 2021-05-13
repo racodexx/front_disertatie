@@ -11,7 +11,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import pointer_red from "../../assets/images/map_pointer_red.png";
-import pointer_orange from "../../assets/images/map_pointer_orange.png";
+import pointer_blue from "../../assets/images/map_pointer_blue.png";
 
 import ShoppingCartContext from "./contexts/ShoppingCartContext";
 import CustomInput from "../base/CustomInput";
