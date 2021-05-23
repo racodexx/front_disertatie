@@ -4,13 +4,15 @@ import styled from "styled-components";
 import { Carousel } from "primereact/carousel";
 import { Toast } from "primereact/toast";
 
+import { useWindowDimensions } from "../../hooks/windowDimensions";
+
 import Section from "../base/Section";
 import FeaturedItem from "../base/FeaturedItem";
 import AddToCartDialog from "../base/AddToCartDialog";
 import ContactBanner from "./ContactBanner";
 import { getProducts } from "../../services/productService";
 import pizza_background from "../../assets/images/pizza_background.jpg";
-import full_logo from "../../assets/images/full_logo_transparent.png";
+import full_logo from "../../assets/images/full_logo.png";
 import FoodCategory from "../../utils/enums/FoodCategory";
 import ProductCategory from "../../utils/enums/ProductCategory";
 import { showNotification } from "../../utils/util";
@@ -24,8 +26,8 @@ const HeadImage = styled.div`
     position: relative;
     text-align: center;
     .background-img {
-      /* width: 100%; */
-      opacity: 0.45;
+      width: 100%;
+      opacity: 0.6;
       @media only screen and (max-width: 1600px) {
         width: 100%;
       }
@@ -132,6 +134,7 @@ const SectionTitle = () => {
 };
 
 const Home = () => {
+  const { height } = useWindowDimensions();
   const toastRef = useRef(null);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState();
@@ -214,7 +217,12 @@ const Home = () => {
       <AddToCartDialog product={selectedProduct} onClose={onCloseAddToCart} />
       <HeadImage>
         <div className="desktop">
-          <img className="background-img" src={pizza_background} alt="pizza" />
+          <img
+            className="background-img"
+            src={pizza_background}
+            alt="pizza"
+            height={height - 50 - 220}
+          />
           <h1 className="centered">
             <img className="logo" src={full_logo} alt="logo" />
           </h1>

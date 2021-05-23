@@ -17,6 +17,8 @@ import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
 import { Calendar } from "primereact/calendar";
 
+import { useWindowDimensions } from "../../../hooks/windowDimensions";
+
 import {
   getOrders,
   deleteOrders,
@@ -34,6 +36,7 @@ const StatusEditIcon = styled.i`
 `;
 
 const OrdersList = () => {
+  const { height } = useWindowDimensions();
   const filterVisibility_LS_KEY = "orders_list_filter_visibility";
   let emptyOrder = {
     id: null,
@@ -55,8 +58,6 @@ const OrdersList = () => {
     price: { value: null, matchMode: "contains" },
     statusId: { value: "", matchMode: "in" },
   };
-
-  const CONTENT_HEIGHT = window.innerHeight;
 
   const [orders, setOrders] = useState(null);
   const [orderDialog, setOrderDialog] = useState(false);
@@ -544,9 +545,7 @@ const OrdersList = () => {
           filters={columnFilterValues}
           // header={header}
           scrollable
-          scrollHeight={`${
-            CONTENT_HEIGHT - (columnFilterVisibility ? 342 : 270)
-          }px`}
+          scrollHeight={`${height - (columnFilterVisibility ? 342 : 270)}px`}
         >
           <Column
             selectionMode="multiple"

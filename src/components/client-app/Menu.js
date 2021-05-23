@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import styled from "styled-components";
 import { Menubar } from "primereact/menubar";
 import { InputText } from "primereact/inputtext";
@@ -169,9 +163,10 @@ const Menu = () => {
       }
     }
     if (filters.subcategoryId) {
-      item = (filters.categoryId === ProductCategory.Food
-        ? FoodCategorySelection
-        : DrinkCategorySelection
+      item = (
+        filters.categoryId === ProductCategory.Food
+          ? FoodCategorySelection
+          : DrinkCategorySelection
       ).find((x) => x.id === filters.subcategoryId);
       if (item) {
         items.push({

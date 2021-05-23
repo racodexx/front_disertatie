@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { image, formatPrice } from "../../utils/util";
-import ProductAvailabilityStatus from "../../utils/enums/ProductAvailabilityStatus";
+import { ProductAvailabilityStatusSelection } from "../../utils/dataSelections";
 
 const ItemWrapper = styled.div`
   cursor: pointer;
@@ -13,13 +13,16 @@ const ItemWrapper = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   min-height: 180px;
+  h3 {
+    margin-bottom: 5px;
+  }
+  .status-name {
+    font-weight: 500;
+    padding: 2px 8px;
+  }
   .price {
     font-weight: 700;
     color: orange;
-  }
-  &.unavailable {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 
   @media screen and (max-width: 1000px) {
@@ -32,20 +35,34 @@ const ItemWrapper = styled.div`
 `;
 
 const MenuItem = ({ item, onClick }) => {
-  const isAvailable =
-    item.availabilityStatusId !== ProductAvailabilityStatus.Unavailable;
+  const getAvailabilityName = () => {
+    if (!item) {
+      return;
+    }
+    let obj = ProductAvailabilityStatusSelection.find(
+      (x) => x.id === item.availabilityStatusId
+    );
+    return (
+      <small
+        className="status-name"
+        style={{ color: obj.color, backgroundColor: obj.color + "2b" }}
+      >
+        {obj.name}
+      </small>
+    );
+  };
+  const availabilityName = getAvailabilityName();
+
   return (
     <ItemWrapper
-      className={!isAvailable ? "unavailable" : ""}
       onClick={() => {
-        if (isAvailable) {
-          onClick();
-        }
+        onClick();
       }}
     >
       <img src={image(item._id)} alt="product" height="150" width="200" />
       <div>
         <h3>{item.name}</h3>
+        {availabilityName}
         <p>{item.description}</p>
         <p className="price">{formatPrice(item.price)}</p>
       </div>

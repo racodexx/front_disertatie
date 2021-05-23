@@ -18,6 +18,8 @@ import { Dropdown } from "primereact/dropdown";
 import { Checkbox } from "primereact/checkbox";
 import { MultiSelect } from "primereact/multiselect";
 
+import { useWindowDimensions } from "../../../hooks/windowDimensions";
+
 import {
   getProducts,
   addProduct,
@@ -48,6 +50,7 @@ const ProductDialogType = {
 
 const ProductsList = () => {
   const filterVisibility_LS_KEY = "products_list_filter_visibility";
+  const { height } = useWindowDimensions();
   let emptyProduct = {
     id: "",
     name: "",
@@ -70,8 +73,6 @@ const ProductsList = () => {
     availabilityStatusId: { value: null, matchMode: "in" },
     featured: { value: "", matchMode: "equals" },
   };
-
-  const CONTENT_HEIGHT = window.innerHeight;
 
   const [selectedProduct, setSelectedProduct] = useState(emptyProduct);
   const [products, setProducts] = useState([]);
@@ -539,10 +540,10 @@ const ProductsList = () => {
     </div>
   ));
 
-  const newProductSubcategories = (selectedProduct.categoryId ===
-  ProductCategory.Drink
-    ? DrinkCategorySelection
-    : FoodCategorySelection
+  const newProductSubcategories = (
+    selectedProduct.categoryId === ProductCategory.Drink
+      ? DrinkCategorySelection
+      : FoodCategorySelection
   ).map((x, index) => (
     <div className="p-field-radiobutton p-col-6" key={"subcategory-" + index}>
       <RadioButton
@@ -584,9 +585,7 @@ const ProductsList = () => {
           filters={columnFilterValues}
           // header={}
           scrollable
-          scrollHeight={`${
-            CONTENT_HEIGHT - (columnFilterVisibility ? 342 : 270)
-          }px`}
+          scrollHeight={`${height - (columnFilterVisibility ? 342 : 270)}px`}
         >
           <Column
             selectionMode="multiple"

@@ -6,28 +6,28 @@ import DrinkCategory from "./enums/DrinkCategory";
 import FeedbackStatus from "./enums/FeedbackStatus";
 
 const OrderStatusSelection = [
-  { id: OrderStatus.Pending, name: "Pending", color: "red" },
-  { id: OrderStatus.Preparing, name: "Preparing", color: "orange" },
+  { id: OrderStatus.Pending, name: "Pending", color: "#ff0000" },
+  { id: OrderStatus.Preparing, name: "Preparing", color: "#ffa500" },
   {
     id: OrderStatus.ToBeDelivered,
     name: "To be delivered",
-    color: "greenyellow",
+    color: "#7aac2c",
   },
   { id: OrderStatus.Delivering, name: "Delivering", color: "turquoise" },
-  { id: OrderStatus.Finalized, name: "Finalized", color: "green" },
-  { id: OrderStatus.Rejected, name: "Rejected", color: "black" },
+  { id: OrderStatus.Finalized, name: "Finalized", color: "#008000" },
+  { id: OrderStatus.Rejected, name: "Rejected", color: "#000000" },
 ];
 
 const ProductAvailabilityStatusSelection = [
   {
     id: ProductAvailabilityStatus.Available,
     name: "Available",
-    color: "green",
+    color: "#008000",
   },
   {
     id: ProductAvailabilityStatus.Limited,
     name: "Limited",
-    color: "orange",
+    color: "#ffa500",
   },
   {
     id: ProductAvailabilityStatus.AvailableSoon,
@@ -37,7 +37,7 @@ const ProductAvailabilityStatusSelection = [
   {
     id: ProductAvailabilityStatus.Unavailable,
     name: "Unavailable",
-    color: "red",
+    color: "#ff0000",
   },
 ];
 
@@ -69,9 +69,9 @@ const DrinkCategorySelection = [
 ];
 
 const FeedbackStatusSelection = [
-  { id: FeedbackStatus.Unread, name: "Unread", color: "red" },
-  { id: FeedbackStatus.Read, name: "Read", color: "orange" },
-  { id: FeedbackStatus.Replied, name: "Replied", color: "green" },
+  { id: FeedbackStatus.Unread, name: "Unread", color: "#ff0000" },
+  { id: FeedbackStatus.Read, name: "Read", color: "#ffa500" },
+  { id: FeedbackStatus.Replied, name: "Replied", color: "#008000" },
 ];
 
 export {

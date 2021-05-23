@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import name_logo from "../../assets/images/name_logo.png";
 
 const Wrapper = styled.div`
   display: flex;
@@ -14,11 +13,13 @@ const Wrapper = styled.div`
 const LeftSide = styled.div`
   font-weight: 500;
   color: white;
-  background-color: white;
   height: 100%;
-  img {
-    height: 100%;
-    padding: 10px;
+  display: flex;
+  align-items: center;
+  padding: 0px 20px;
+  font-size: 22px;
+  @media only screen and (max-width: 500px) {
+    font-size: 15px;
   }
 `;
 const RightSide = styled.div`
@@ -62,7 +63,7 @@ const NavActionItem = ({ name, children }) => {
 const Navbar = () => {
   return (
     <Wrapper>
-      <LeftSide>{/* <img src={name_logo} alt="logo" /> */}</LeftSide>
+      <LeftSide>Old Mill</LeftSide>
       <RightSide>
         <NavActionItem name="home">Home</NavActionItem>
         <NavActionItem name="menu">Menu</NavActionItem>
