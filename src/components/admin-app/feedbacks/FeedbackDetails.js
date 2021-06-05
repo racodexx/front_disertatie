@@ -6,13 +6,19 @@ import { Button } from "primereact/button";
 
 import CustomTextArea from "../../base/CustomTextArea";
 import FeedbackStatus from "../../../utils/enums/FeedbackStatus";
-import { sendReply } from "../../../services/feedbackService";
+import { sendReply, deleteFeedback } from "../../../services/feedbackService";
 import { handleApiActionResult } from "../../../utils/util";
 
 const DialogContent = styled.div`
   .feedback-message {
     color: black;
   }
+`;
+
+const RemoveButton = styled.i`
+  color: red;
+  font-size: 25px;
+  cursor: pointer;
 `;
 
 const FeedbackDetails = ({ feedback, onHide, toastRef }) => {
@@ -37,6 +43,14 @@ const FeedbackDetails = ({ feedback, onHide, toastRef }) => {
     }
   };
 
+  const removeFeedback = async () => {
+    let response = await deleteFeedback(feedback._id);
+    const success = handleApiActionResult(response, toastRef);
+    if (success) {
+      onHide({ statusId: FeedbackStatus.Deleted });
+    }
+  };
+
   const resetStates = () => {
     setReplyMessage("");
     setIsReplying(false);
@@ -54,7 +68,12 @@ const FeedbackDetails = ({ feedback, onHide, toastRef }) => {
 
   const getDialogFooter = () => {
     if (feedback?.statusId === FeedbackStatus.Replied) {
-      return <></>;
+      return (
+        <RemoveButton
+          className="pi pi-trash"
+          onClick={removeFeedback}
+        ></RemoveButton>
+      );
     }
     if (!isReplying) {
       return (

@@ -96,10 +96,11 @@ const Contact = () => {
             <div className="content">
               <div className="title">About Old Mill Restaurant</div>
               <div className="text">
-                There are many variations of passages of Lorem Ipsum available,
-                but the majority have suffered alteration in some form, by
-                injected humour, or randomised words which don't look even
-                slightly believable.
+                Our restaurant is very well placed, in Curtea de Arges, on Main
+                Street, number 7. The place is quite large, it has space for 150
+                peoples inside the restaurant and 100 peoples outside, on the
+                covered terrace. The interior of the restaurant it's decorated
+                in a classic style, but with few elements of modernism.
               </div>
               <div className="images p-grid">
                 <div className="p-col-12 p-md-4">
@@ -121,7 +122,9 @@ const Contact = () => {
           </FormWrapper>
         </div>
       </div>
-      <h2 style={{ textAlign: "center" }}>Map location</h2>
+      <h1 style={{ textAlign: "center", fontFamily: "Courier New" }}>
+        Map location
+      </h1>
       <MapContainer
         center={shopCoordonates}
         zoom={13}

@@ -18,6 +18,9 @@ import { Dropdown } from "primereact/dropdown";
 import { Checkbox } from "primereact/checkbox";
 import { MultiSelect } from "primereact/multiselect";
 
+import CustomInput from "../../base/CustomInput";
+import CustomTextArea from "../../base/CustomTextArea";
+
 import { useWindowDimensions } from "../../../hooks/windowDimensions";
 
 import {
@@ -80,7 +83,6 @@ const ProductsList = () => {
   const [productDialog, setProductDialog] = useState(ProductDialogType.None);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilterVisibility, setColumnFilterVisibility] = useState(false);
@@ -114,12 +116,10 @@ const ProductsList = () => {
 
   const openNew = () => {
     setSelectedProduct(emptyProduct);
-    setSubmitted(false);
     setProductDialog(ProductDialogType.Add);
   };
 
   const hideDialog = () => {
-    setSubmitted(false);
     setProductDialog(ProductDialogType.None);
   };
 
@@ -156,8 +156,42 @@ const ProductsList = () => {
     setSelectedProduct(_product);
   };
 
+  const validateProduct = () => {
+    let errors = [];
+    if (!selectedProduct.name) {
+      errors.push("Name is required!");
+    }
+    if (!selectedProduct.description) {
+      errors.push("Description is required!");
+    }
+    if (!selectedProduct.categoryId) {
+      errors.push("Category number is required!");
+    }
+    if (!selectedProduct.subcategoryId) {
+      errors.push("Subcategory is required!");
+    }
+    if (!selectedProduct.subcategoryId) {
+      errors.push("Subcategory is required!");
+    }
+    if (!selectedProduct.price) {
+      errors.push("Price is required!");
+    }
+    if (!selectedProduct.availabilityStatusId) {
+      errors.push("Availability is required!");
+    }
+    if (errors.length) {
+      showNotification(
+        "error",
+        "Please fill all the info",
+        errors.join(", "),
+        toastRef
+      );
+      return false;
+    }
+    return true;
+  };
+
   const saveProduct = async () => {
-    setSubmitted(true);
     let result;
     if (productDialog === ProductDialogType.Add) {
       const newProduct = {
@@ -169,6 +203,10 @@ const ProductsList = () => {
         availabilityStatusId: selectedProduct.availabilityStatusId,
         featured: selectedProduct.featured,
       };
+      let isValid = validateProduct(newProduct);
+      if (!isValid) {
+        return;
+      }
       result = await addProduct(newProduct);
     } else {
       result = await editProduct(selectedProduct);
@@ -688,9 +726,6 @@ const ProductsList = () => {
             required
             autoFocus
           />
-          {submitted && !selectedProduct.name && (
-            <small className="p-invalid">Name is required.</small>
-          )}
         </div>
         <div className="p-field">
           <label htmlFor="description">Description</label>

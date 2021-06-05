@@ -6,6 +6,7 @@ const ProductSubcategory = {
   MeatSpeciality: 5,
   VegetarianSpecality: 6,
   Sauce: 7,
-  Other: 8,
+  Burger: 8,
+  Other: 9,
 };
 export default ProductSubcategory;

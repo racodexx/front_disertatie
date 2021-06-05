@@ -103,12 +103,18 @@ const FeedbacksList = () => {
       setSelectedFeedback(null);
       return;
     }
+
     let newState = [...feedbacks];
     let currentItem = newState.find((x) => x._id === selectedFeedback._id);
     if (currentItem) {
-      Object.keys(data).forEach((key) => {
-        currentItem[key] = data[key];
-      });
+      if (data.statusId === FeedbackStatus.Deleted) {
+        let index = feedbacks.indexOf(currentItem);
+        newState.splice(index, 1);
+      } else {
+        Object.keys(data).forEach((key) => {
+          currentItem[key] = data[key];
+        });
+      }
     }
     setFeedbacks(newState);
     setSelectedFeedback(null);

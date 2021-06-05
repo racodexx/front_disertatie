@@ -14,7 +14,7 @@ const ItemWrapper = styled.div`
   border-radius: 4px;
   min-height: 180px;
   h3 {
-    margin-bottom: 5px;
+    margin: 5px;
   }
   .status-name {
     font-weight: 500;
@@ -25,11 +25,16 @@ const ItemWrapper = styled.div`
     color: orange;
   }
 
+  .img {
+    max-width: 200px;
+  }
+
   @media screen and (max-width: 1000px) {
     display: block;
     img {
       height: unset;
       width: 100%;
+      max-width: unset;
     }
   }
 `;
@@ -59,11 +64,15 @@ const MenuItem = ({ item, onClick }) => {
         onClick();
       }}
     >
-      <img src={image(item._id)} alt="product" height="150" width="200" />
+      <img src={image(item._id)} alt="product" height="150" />
       <div>
         <h3>{item.name}</h3>
         {availabilityName}
-        <p>{item.description}</p>
+        <p>
+          {item.description.length < 80
+            ? item.description
+            : item.description.substr(0, 80) + "..."}
+        </p>
         <p className="price">{formatPrice(item.price)}</p>
       </div>
     </ItemWrapper>

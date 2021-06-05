@@ -40,6 +40,10 @@ const ItemImage = styled.div`
 `;
 
 const FeaturedItem = ({ product, addToCart }) => {
+  let description =
+    product.description.length > 70
+      ? product.description.substring(0, 70) + "..."
+      : product.description;
   return (
     <Wrapper>
       <div className="test">
@@ -49,7 +53,7 @@ const FeaturedItem = ({ product, addToCart }) => {
         <div className="content-wrapper">
           <div className="title">{product.name}</div>
           <h3 className="p-mt-0 p-mb-3">{formatPrice(product.price)}</h3>
-          <p className="description">{product.description}</p>
+          <p className="description">{description}</p>
           <ProductAvailabilityItem
             availabilityStatusId={product.availabilityStatusId}
           />

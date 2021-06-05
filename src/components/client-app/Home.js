@@ -16,6 +16,7 @@ import full_logo from "../../assets/images/full_logo.png";
 import FoodCategory from "../../utils/enums/FoodCategory";
 import ProductCategory from "../../utils/enums/ProductCategory";
 import { showNotification } from "../../utils/util";
+import DrinkCategory from "../../utils/enums/DrinkCategory";
 
 const Wrapper = styled.div`
   /* position: relative; */
@@ -154,6 +155,12 @@ const Home = () => {
       x.subcategoryId === FoodCategory.Pizza
   );
 
+  const burgerItems = featuredProducts.filter(
+    (x) =>
+      x.categoryId === ProductCategory.Food &&
+      x.subcategoryId === FoodCategory.Burger
+  );
+
   const soupItems = featuredProducts.filter(
     (x) =>
       x.categoryId === ProductCategory.Food &&
@@ -166,8 +173,16 @@ const Home = () => {
       x.subcategoryId === FoodCategory.Pasta
   );
 
+  const saladItems = featuredProducts.filter(
+    (x) =>
+      x.categoryId === ProductCategory.Food &&
+      x.subcategoryId === FoodCategory.Salad
+  );
+
   const drinkItems = featuredProducts.filter(
-    (x) => x.categoryId === ProductCategory.Drink
+    (x) =>
+      x.categoryId === ProductCategory.Drink &&
+      x.subcategoryId !== DrinkCategory.StrongAlcohol
   );
 
   const responsiveOptions = [
@@ -211,6 +226,15 @@ const Home = () => {
     );
   };
 
+  const selections = [
+    { name: "Pizza", items: pizzaItems },
+    { name: "Burger", items: burgerItems },
+    { name: "Pasta", items: pastaItems },
+    { name: "Soup", items: soupItems },
+    { name: "Salad", items: saladItems },
+    { name: "Drink", items: drinkItems },
+  ];
+
   return (
     <Wrapper>
       <Toast ref={toastRef} />
@@ -237,75 +261,39 @@ const Home = () => {
             Get you favourite food even on pandemic times
           </div>
           <div className="text">
-            Contrary to popular belief, Lorem Ipsum is not simply random text.
-            It has roots in a piece of classical Latin literature from 45 BC,
-            making it over 2000 years old.
+            You missed the times when you went to our restaurant yo take the
+            lunch? Now you can order directly from our website. Same food, same
+            quality, fast delivery!
           </div>
         </div>
       </AboutUsBanner>
       <PageContent>
         <SectionTitle text={"Featured products"} />
-        <Section title="Pizza">
-          <Carousel
-            value={pizzaItems}
-            numVisible={4}
-            numScroll={1}
-            responsiveOptions={responsiveOptions}
-            className="custom-carousel"
-            circular
-            // autoplayInterval={3000}
-            itemTemplate={productTemplate}
-            // header={<h5>Check our Pizza</h5>}
-          />
-        </Section>
-        <Section title="Soup">
-          <Carousel
-            value={soupItems}
-            numVisible={4}
-            numScroll={1}
-            responsiveOptions={responsiveOptions}
-            className="custom-carousel"
-            circular
-            // autoplayInterval={3000}
-            itemTemplate={productTemplate}
-            // header={<h5>Check our Pizza</h5>}
-          />
-        </Section>
-        <Section title="Pasta">
-          <Carousel
-            value={pastaItems}
-            numVisible={4}
-            numScroll={1}
-            responsiveOptions={responsiveOptions}
-            className="custom-carousel"
-            circular
-            // autoplayInterval={3000}
-            itemTemplate={productTemplate}
-            // header={<h5>Check our Pizza</h5>}
-          />
-        </Section>
-        <Section title="Drinks">
-          <Carousel
-            value={drinkItems}
-            numVisible={4}
-            numScroll={1}
-            responsiveOptions={responsiveOptions}
-            className="custom-carousel"
-            circular
-            // autoplayInterval={3000}
-            itemTemplate={productTemplate}
-            // header={<h5>Check our Pizza</h5>}
-          />
-        </Section>
+        {selections.map((x) => {
+          return (
+            <Section title={x.name}>
+              <Carousel
+                value={x.items}
+                numVisible={4}
+                numScroll={1}
+                responsiveOptions={responsiveOptions}
+                className="custom-carousel"
+                circular
+                // autoplayInterval={3000}
+                itemTemplate={productTemplate}
+                // header={<h5>Check our Pizza</h5>}
+              />
+            </Section>
+          );
+        })}
       </PageContent>
       <MenuInfoBanner>
         <div className="content">
           <div className="title">Our Menu</div>
           <div className="text">
-            There are many variations of passages of Lorem Ipsum available, but
-            the majority have suffered alteration in some form, by injected
-            humour, or randomised words which don't look even slightly
-            believable.
+            When you are saying Old Mill, you are saying well prepared food and
+            a wide variety of dishes. You can search in our offer for soup,
+            pizza, pasta, burgers and many other food specialities and drinks.
           </div>
           <div
             className="check-menu-button"

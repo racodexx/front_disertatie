@@ -29,3 +29,8 @@ export const sendReply = async (feedback, reply) => {
   let result = await axios.post(baseURL + "/reply", body);
   return result.data;
 };
+
+export const deleteFeedback = async (feedbackId) => {
+  let result = await axios.delete(baseURL + "/delete/" + feedbackId);
+  return result.data;
+};

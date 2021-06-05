@@ -54,6 +54,7 @@ const FoodCategorySelection = [
   { id: FoodCategory.MeatSpeciality, name: "Meat Speciality" },
   { id: FoodCategory.VegetarianSpecality, name: "Vegetarian Speciality" },
   { id: FoodCategory.Sauce, name: "Sauce" },
+  { id: FoodCategory.Burger, name: "Burger" },
   { id: FoodCategory.Other, name: "Other" },
 ];
 
