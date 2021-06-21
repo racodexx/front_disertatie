@@ -311,12 +311,12 @@ const OrdersList = () => {
   const leftToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <Button
+        {/* <Button
           label="New"
           icon="pi pi-plus"
           className="p-button-success p-mr-2"
           onClick={openNew}
-        />
+        /> */}
         <Button
           label="Delete"
           icon="pi pi-trash"
@@ -633,7 +633,7 @@ const OrdersList = () => {
           />
           {selectedOrder && (
             <span>
-              Are you sure you want to delete <b>{selectedOrder.name}</b>?
+              Are you sure you want to delete order <b>{selectedOrder._id}</b>?
             </span>
           )}
         </div>

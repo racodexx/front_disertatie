@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Steps } from "primereact/steps";
 import { Button } from "primereact/button";
@@ -126,7 +126,12 @@ const ShoppingCart = () => {
       return;
     }
     updatePrice();
-  }, [hasLoaded]);
+    //eslint-disable-next-line
+  }, [
+    hasLoaded,
+    cartState.orderDetails.products,
+    cartState.orderDetails.includeDelivery,
+  ]);
 
   const load = async () => {
     let storedProducts = getCartProducts_LS();
@@ -147,7 +152,7 @@ const ShoppingCart = () => {
       totalPrice +=
         product.price * cartState.orderDetails.products[product._id];
     }
-
+    console.log({ totalPrice });
     if (
       cartState.orderDetails.includeDelivery &&
       totalPrice < FreeDeliveryLimit

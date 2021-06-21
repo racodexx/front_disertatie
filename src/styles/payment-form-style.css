@@ -29,12 +29,11 @@ input {
   display: none;
 }
 
-#card-error {
+.card-error {
   color: rgb(105, 115, 134);
   font-size: 16px;
   line-height: 20px;
   margin-top: 12px;
-  text-align: center;
 }
 
 #card-element {

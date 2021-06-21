@@ -11,6 +11,6 @@ const Wrapper = styled.div`
   font-weight: 600;
 `;
 const Footer = () => {
-  return <Wrapper>@Racodex 2021</Wrapper>;
+  return <Wrapper>@Disertatie 2021</Wrapper>;
 };
 export default Footer;

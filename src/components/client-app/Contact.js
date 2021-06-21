@@ -27,10 +27,9 @@ const FormWrapper = styled.div`
   box-shadow: 4px 4px 10px 0px #b7b7b7;
   background-color: #f0f8ff94;
   padding: 20px;
-  width: 600px;
-  margin: auto;
+  margin: 25px;
   @media only screen and (max-width: 900px) {
-    width: 100% !important;
+    margin: 0px 10px;
   }
 `;
 

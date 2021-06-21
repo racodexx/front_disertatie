@@ -26,7 +26,7 @@ const AdminLayout = (props) => {
     },
     {
       id: MenuItems.Feedbacks,
-      label: "Feedbacks",
+      label: "Feedback",
       icon: "pi pi-fw pi-comments",
       href: "/admin/feedbacks",
     },

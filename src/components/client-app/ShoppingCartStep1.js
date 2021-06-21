@@ -58,6 +58,9 @@ const ShoppingCartStep1 = ({ fieldErrors, setFieldErrors }) => {
   const [outOfArea, setOutOfArea] = useState(false);
 
   useEffect(() => {
+    if (!latitude || !longitude) {
+      return;
+    }
     let distance = getDistance(
       latitude,
       shopCoordonates[0],
@@ -146,7 +149,7 @@ const ShoppingCartStep1 = ({ fieldErrors, setFieldErrors }) => {
                 onChange={(e) => setOrderDetails("includeDelivery", false)}
                 checked={orderDetails.includeDelivery === false}
               />
-              <label htmlFor="delivery2">Takeaway</label>
+              <label htmlFor="delivery2">Take away</label>
             </div>
             <DeliveryInfo>
               Home delivery service it's available only in Curtea de Arges
@@ -246,7 +249,7 @@ const ShoppingCartStep1 = ({ fieldErrors, setFieldErrors }) => {
             center={shopCoordonates}
             zoom={13}
             scrollWheelZoom={false}
-            style={{ height: "500px", width: "100%" }}
+            style={{ width: "100%", height: "100%", minHeight: "500px" }}
           >
             <TileLayer
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

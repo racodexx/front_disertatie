@@ -45,11 +45,11 @@ const ContactBanner = () => {
           <div className="title">Location</div>
           <div className="item">
             <i className="pi pi-map-marker"></i>
-            <span className="text">Address: Curtea de Arges</span>
+            <span className="text">City: Curtea de Arges</span>
           </div>
           <div className="item">
             <i className="pi pi-map"></i>
-            <span className="text">Street: Main Street</span>
+            <span className="text">Address: Main Street, nr 7</span>
           </div>
         </div>
         <div className="card">

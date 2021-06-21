@@ -261,7 +261,7 @@ const Home = () => {
             Get you favourite food even on pandemic times
           </div>
           <div className="text">
-            You missed the times when you went to our restaurant yo take the
+            You missed the times when you went to our restaurant to take the
             lunch? Now you can order directly from our website. Same food, same
             quality, fast delivery!
           </div>

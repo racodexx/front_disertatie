@@ -8,17 +8,13 @@ const initialGeolocationState = {
 
 export const useGeolocation = () => {
   const [geolocation, setGeolocation] = useState(initialGeolocationState);
-  let mounted = true;
-
   useEffect(() => {
     function handleGeolocation(event) {
-      if (mounted) {
-        setGeolocation({
-          latitude: event.coords.latitude,
-          longitude: event.coords.longitude,
-          speed: event.coords.speed,
-        });
-      }
+      setGeolocation({
+        latitude: event.coords.latitude,
+        longitude: event.coords.longitude,
+        speed: event.coords.speed,
+      });
     }
 
     navigator.geolocation.getCurrentPosition(handleGeolocation);
@@ -26,7 +22,6 @@ export const useGeolocation = () => {
 
     return () => {
       navigator.geolocation.clearWatch(watchId);
-      mounted = false;
     };
   }, []);
 
